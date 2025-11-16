@@ -4,15 +4,11 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' http://localhost:3002 https://*.ngrok.io; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; connect-src 'self' ws://localhost:3002 wss://*.ngrok.io http://localhost:3002 https://*.ngrok.io;">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <title>Poker Table</title>
   </head>
   <body>
-    <div class="joker joker-1">&#127183;Ÿƒ</div>
-    <div class="joker joker-2">&#127183;Ÿƒ</div>
-    <div class="joker joker-3">&#127183;Ÿƒ</div>
-    <div class="joker joker-4">&#127183;Ÿƒ</div>
-    <div class="joker joker-5">&#127183;Ÿƒ</div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

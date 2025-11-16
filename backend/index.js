@@ -17,6 +17,10 @@ const io = socketIo(server, {
 app.use(cors());
 app.use(express.json());
 
+app.get('/', (req, res) => {
+  res.send('Poker backend działa');
+});
+
 const PORT = process.env.PORT || 3002;
 
 // Symulacja gry pokerowej

@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 import './App.css';
 import logo from './hazardzik.pl.png';
 
-const socket = io('http://192.168.100.5:3002');
+const socket = io('http://localhost:3002');
 
 function playSound(sound: string) {
   let url = '';
@@ -28,14 +28,17 @@ function App() {
   const [nickname, setNickname] = useState('');
   const [betAmount, setBetAmount] = useState(10);
   const [myId, setMyId] = useState('');
+  const [connected, setConnected] = useState(false);
 
   useEffect(() => {
     socket.on('connect', () => {
       console.log('Connected to server');
       setMyId(socket.id);
+      setConnected(true);
     });
     socket.on('disconnect', () => {
       console.log('Disconnected from server');
+      setConnected(false);
     });
     socket.on('gameUpdate', (data) => {
       setGameState(data);
@@ -58,13 +61,14 @@ function App() {
     <div className="App">
       <img src={logo} alt="Hazardzik.pl Logo" className="logo" />
       <h1>Poker Table</h1>
+      <div>Status: {connected ? 'Połączony' : 'Rozłączony'}</div>
       <div className="table">
         <div className="table-title">Hazardzik.pl</div>
         <div className="dealer">Krupier</div>
         {[...Array(10)].map((_, i) => {
           const seatNum = i + 1;
           const player = (gameState.players || []).find(p => p.seat === seatNum);
-          const isCurrent = gameState.players && gameState.players[gameState.currentPlayer] && gameState.players[gameState.currentPlayer].seat === seatNum;
+          const isCurrent = false; // gameState.players && gameState.players[gameState.currentPlayer] && gameState.players[gameState.currentPlayer].seat === seatNum;
           return (
             <div key={seatNum} className={`seat seat-${seatNum}`}>
               {player ? `${player.name} (${player.chips})` : ''}
@@ -87,7 +91,7 @@ function App() {
       </div>
       <div className="controls-left">
         <input value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="Wpisz nick" />
-        <button onClick={() => { if (nickname.trim()) { socket.emit('joinGame', nickname); playSound('join'); } }}>Dołącz do gry</button>
+        <button onClick={() => { if (nickname.trim()) { alert('Wysyłanie joinGame z ' + nickname); socket.emit('joinGame', nickname); playSound('join'); } }}>Dołącz do gry</button>
         <button onClick={() => { socket.emit('resetGame'); playSound('reset'); }}>Reset gry</button>
         <button onClick={() => { socket.emit('startGame'); playSound('start'); }}>Rozpocznij grę</button>
       </div>

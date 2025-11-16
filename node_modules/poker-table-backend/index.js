@@ -21,7 +21,7 @@ app.get('/', (req, res) => {
   res.send('Poker backend działa');
 });
 
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3004;
 
 // Symulacja gry pokerowej
 let gameState = {
@@ -271,7 +271,14 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
+    const wasCurrent = gameState.players[gameState.currentPlayer]?.id === socket.id;
     gameState.players = gameState.players.filter(p => p.id !== socket.id);
+    if (wasCurrent && gameState.players.length > 0) {
+      gameState.currentPlayer = gameState.currentPlayer % gameState.players.length;
+    } else if (gameState.players.length === 0) {
+      gameState.phase = 'waiting';
+      gameState.currentPlayer = 0;
+    }
     io.emit('gameUpdate', gameState);
     console.log('Player disconnected:', socket.id);
   });
@@ -288,9 +295,12 @@ setInterval(() => {
       const playerIndex = gameState.currentPlayer;
       if (gameState.players[playerIndex]) {
         gameState.players.splice(playerIndex, 1);
-        gameState.currentPlayer = gameState.currentPlayer % gameState.players.length;
         if (gameState.players.length > 0) {
+          gameState.currentPlayer = gameState.currentPlayer % gameState.players.length;
           gameState.timer = 30;
+        } else {
+          gameState.phase = 'waiting';
+          gameState.currentPlayer = 0;
         }
         io.emit('gameUpdate', gameState);
       }

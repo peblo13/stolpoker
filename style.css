@@ -792,3 +792,23 @@ section.animate {
     left: 0;
     color: #00d4ff;
 }
+
+/* Breadcrumb */
+.breadcrumb {
+    padding: 1rem 2rem;
+    background: rgba(0, 0, 0, 0.5);
+    font-size: 0.9rem;
+}
+
+.breadcrumb a {
+    color: #00d4ff;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumb span {
+    color: #fff;
+}

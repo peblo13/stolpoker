@@ -23,6 +23,10 @@ app.get('/', (req, res) => {
   res.send('Poker backend działa');
 });
 
+app.get('/records', (req, res) => {
+  res.json(records);
+});
+
 const DEFAULT_PORT = 8086;
 
 // Find an available port starting from DEFAULT_PORT up to DEFAULT_PORT+10
@@ -42,6 +46,13 @@ let gameState = {
   timer: 0,
   currentBet: 0,
   deckId: null
+};
+
+// Rekordy gry
+let records = {
+  highestPot: 0,
+  biggestWin: 0,
+  mostWins: {} // {playerName: count}
 };
 
 // Funkcje pomocnicze
@@ -281,9 +292,22 @@ io.on('connection', (socket) => {
         }
       }
       if (winner) {
-        winner.chips += gameState.pot;
+        const winAmount = gameState.pot;
+        winner.chips += winAmount;
         gameState.pot = 0;
-        console.log('Winner:', winner.name);
+        console.log('Winner:', winner.name, 'wins', winAmount);
+
+        // Aktualizuj rekordy
+        if (winAmount > records.biggestWin) {
+          records.biggestWin = winAmount;
+        }
+        if (winAmount > records.highestPot) {
+          records.highestPot = winAmount;
+        }
+        if (!records.mostWins[winner.name]) {
+          records.mostWins[winner.name] = 0;
+        }
+        records.mostWins[winner.name]++;
       }
       // Reset for next hand
       gameState.phase = 'waiting';

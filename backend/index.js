@@ -3,6 +3,7 @@ const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
 const axios = require('axios');
+const fs = require('fs');
 const { evaluatePokerHand } = require('./pokerEvaluator');
 
 console.log('Starting server...');
@@ -54,6 +55,11 @@ let records = {
   biggestWin: 0,
   mostWins: {} // {playerName: count}
 };
+
+// Wczytaj rekordy z pliku jeśli istnieje
+if (fs.existsSync('../records.json')) {
+  records = JSON.parse(fs.readFileSync('../records.json'));
+}
 
 // Funkcje pomocnicze
 function createDeck() {
@@ -308,6 +314,17 @@ io.on('connection', (socket) => {
           records.mostWins[winner.name] = 0;
         }
         records.mostWins[winner.name]++;
+        // Zapisz rekordy do pliku
+        fs.writeFileSync('../records.json', JSON.stringify(records, null, 2));
+        // Commit i push do GitHub
+        const { exec } = require('child_process');
+        exec('cd .. && git add records.json && git commit -m "Update poker records" && git push origin master', (err, stdout, stderr) => {
+          if (err) {
+            console.error('Error committing records:', err);
+          } else {
+            console.log('Records committed and pushed to GitHub');
+          }
+        });
       }
       // Reset for next hand
       gameState.phase = 'waiting';

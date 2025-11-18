@@ -29,7 +29,6 @@
                 <li><a href="#portfolio">Portfolio</a></li>
                 <li><a href="#seo">SEO</a></li>
                 <li><a href="#testimonials">Opinie</a></li>
-                <li><a href="#records">Rekordy</a></li>
                 <li><a href="#contact">Kontakt</a></li>
                 <li><a href="https://github.com/peblo13" target="_blank">GitHub</a></li>
             </ul>
@@ -240,15 +239,6 @@
         </div>
     </section>
 
-    <section id="records">
-        <div class="container">
-            <h2>Rekordy Pokerowe</h2>
-            <div id="records-content">
-                <p>Ładowanie rekordów...</p>
-            </div>
-        </div>
-    </section>
-
     <section id="contact">
         <div class="container">
             <h2>Kontakt</h2>
@@ -296,34 +286,6 @@
                 move: { speed: 1 }
             }
         });
-    </script>
-    <script>
-        // Pobierz rekordy z backendu
-        fetch('http://localhost:8086/records')
-            .then(response => response.json())
-            .then(data => {
-                const recordsContent = document.getElementById('records-content');
-                recordsContent.innerHTML = `
-                    <div class="records-grid">
-                        <div class="record">
-                            <h3>Największy Pot</h3>
-                            <p>${data.highestPot} żetonów</p>
-                        </div>
-                        <div class="record">
-                            <h3>Największa Wygrana</h3>
-                            <p>${data.biggestWin} żetonów</p>
-                        </div>
-                        <div class="record">
-                            <h3>Najwięcej Wygranych</h3>
-                            <p>${Object.entries(data.mostWins).sort((a,b) => b[1] - a[1])[0]?.[0] || 'Brak'} (${Object.entries(data.mostWins).sort((a,b) => b[1] - a[1])[0]?.[1] || 0})</p>
-                        </div>
-                    </div>
-                `;
-            })
-            .catch(error => {
-                document.getElementById('records-content').innerHTML = '<p>Nie można pobrać rekordów. Uruchom backend poker.</p>';
-                console.error('Error fetching records:', error);
-            });
     </script>
 </body>
 </html>

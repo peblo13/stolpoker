@@ -42,6 +42,8 @@ function evaluatePokerHand(cards) {
     throw new Error('Must provide exactly 7 cards');
   }
 
+  console.log('Evaluating hand for', cards.length, 'cards:', cards);
+
   // Normalize cards
   const normalized = cards.map(normalizeCard);
 

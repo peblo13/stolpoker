@@ -5,6 +5,8 @@ const cors = require('cors');
 const axios = require('axios');
 const { evaluatePokerHand } = require('./pokerEvaluator');
 
+console.log('Starting server...');
+
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
@@ -21,7 +23,12 @@ app.get('/', (req, res) => {
   res.send('Poker backend działa');
 });
 
-const PORT = process.env.PORT || 3004;
+const DEFAULT_PORT = 8086;
+
+// Find an available port starting from DEFAULT_PORT up to DEFAULT_PORT+10
+const net = require('net');
+
+const port = DEFAULT_PORT;
 
 // Symulacja gry pokerowej
 let gameState = {
@@ -139,7 +146,7 @@ io.on('connection', (socket) => {
     // Assign random available seat
     const takenSeats = gameState.players.map(p => p.seat);
     const availableSeats = [];
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= 6; i++) {
       if (!takenSeats.includes(i)) availableSeats.push(i);
     }
     if (availableSeats.length > 0) {
@@ -152,6 +159,22 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('joinSeat', (data) => {
+    const { name, seat } = data;
+    console.log('Join seat received:', name, 'seat:', seat);
+    if (!name || !name.trim()) { console.log('Invalid name'); return; }
+    if (gameState.players.find(p => p.id === socket.id)) { console.log('Already joined'); return; }
+    if (gameState.players.find(p => p.seat === seat)) { console.log('Seat taken'); return; }
+    if (seat < 1 || seat > 6) { console.log('Invalid seat'); return; } // Seats 1-6
+    gameState.players.push({ id: socket.id, name: name.trim(), chips: 1000, seat });
+    console.log('Player added:', name, 'at seat', seat);
+    // io.emit('gameUpdate', gameState);
+  });
+
+  socket.on('sendMessage', (data) => {
+    io.emit('message', data);
+  });
+
   socket.on('bet', (amount) => {
     const player = gameState.players.find(p => p.id === socket.id);
     if (player && player.chips >= amount && amount >= 10) {
@@ -160,7 +183,7 @@ io.on('connection', (socket) => {
       gameState.currentBet = amount;
       gameState.currentPlayer = (gameState.currentPlayer + 1) % gameState.players.length;
       gameState.timer = 30;
-      io.emit('gameUpdate', gameState);
+      // io.emit('gameUpdate', gameState);
     }
   });
 
@@ -172,7 +195,7 @@ io.on('connection', (socket) => {
       gameState.currentBet = amount;
       gameState.currentPlayer = (gameState.currentPlayer + 1) % gameState.players.length;
       gameState.timer = 30;
-      io.emit('gameUpdate', gameState);
+      // io.emit('gameUpdate', gameState);
     }
   });
 
@@ -183,7 +206,7 @@ io.on('connection', (socket) => {
       gameState.pot += gameState.currentBet;
       gameState.currentPlayer = (gameState.currentPlayer + 1) % gameState.players.length;
       gameState.timer = 30;
-      io.emit('gameUpdate', gameState);
+      // io.emit('gameUpdate', gameState);
     }
   });
 
@@ -195,7 +218,7 @@ io.on('connection', (socket) => {
       if (player.chips > gameState.currentBet) gameState.currentBet = player.chips;
       gameState.currentPlayer = (gameState.currentPlayer + 1) % gameState.players.length;
       gameState.timer = 30;
-      io.emit('gameUpdate', gameState);
+      // io.emit('gameUpdate', gameState);
     }
   });
 
@@ -207,7 +230,7 @@ io.on('connection', (socket) => {
         gameState.currentPlayer = gameState.currentPlayer % gameState.players.length;
         gameState.timer = 30;
       }
-      io.emit('gameUpdate', gameState);
+      // io.emit('gameUpdate', gameState);
     }
   });
 
@@ -221,7 +244,7 @@ io.on('connection', (socket) => {
     gameState.playerHands = {};
     gameState.currentBet = 0;
     gameState.deckId = null;
-    io.emit('gameUpdate', gameState);
+    // io.emit('gameUpdate', gameState);
     console.log('Game reset');
   });
 
@@ -235,10 +258,13 @@ io.on('connection', (socket) => {
   socket.on('nextPhase', async () => {
     if (gameState.phase === 'pre-flop') {
       await dealFlop();
+      io.emit('gameUpdate', gameState);
     } else if (gameState.phase === 'flop') {
       await dealTurn();
+      io.emit('gameUpdate', gameState);
     } else if (gameState.phase === 'turn') {
       await dealRiver();
+      io.emit('gameUpdate', gameState);
     } else if (gameState.phase === 'river') {
       // Determine winner
       let bestHand = null;
@@ -271,45 +297,70 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    const wasCurrent = gameState.players[gameState.currentPlayer]?.id === socket.id;
-    gameState.players = gameState.players.filter(p => p.id !== socket.id);
-    if (wasCurrent && gameState.players.length > 0) {
-      gameState.currentPlayer = gameState.currentPlayer % gameState.players.length;
-    } else if (gameState.players.length === 0) {
-      gameState.phase = 'waiting';
-      gameState.currentPlayer = 0;
+    try {
+      const wasCurrent = gameState.players[gameState.currentPlayer]?.id === socket.id;
+      gameState.players = gameState.players.filter(p => p.id !== socket.id);
+      if (wasCurrent && gameState.players.length > 0) {
+        gameState.currentPlayer = gameState.currentPlayer % gameState.players.length;
+      } else if (gameState.players.length === 0) {
+        gameState.phase = 'waiting';
+        gameState.currentPlayer = 0;
+      }
+      console.log('Emitting gameUpdate on disconnect');
+      // io.emit('gameUpdate', gameState);
+      console.log('Player disconnected:', socket.id);
+    } catch (err) {
+      console.error('Error in disconnect handler:', err);
     }
-    io.emit('gameUpdate', gameState);
-    console.log('Player disconnected:', socket.id);
   });
 });
 
 // Timer for decisions
-setInterval(() => {
-  if (gameState.phase !== 'waiting' && gameState.players.length > 0) {
-    if (gameState.timer > 0) {
-      gameState.timer--;
-      io.emit('gameUpdate', gameState);
-    } else {
-      // Time out: fold for current player
-      const playerIndex = gameState.currentPlayer;
-      if (gameState.players[playerIndex]) {
-        gameState.players.splice(playerIndex, 1);
-        if (gameState.players.length > 0) {
-          gameState.currentPlayer = gameState.currentPlayer % gameState.players.length;
-          gameState.timer = 30;
-        } else {
-          gameState.phase = 'waiting';
-          gameState.currentPlayer = 0;
-        }
-        io.emit('gameUpdate', gameState);
-      }
-    }
-  }
-}, 1000);
+// setInterval(() => {
+//   if (gameState.phase !== 'waiting' && gameState.players.length > 0) {
+//     if (gameState.timer > 0) {
+//       gameState.timer--;
+//       io.emit('gameUpdate', gameState);
+//     } else {
+//       // Time out: fold for current player
+//       const playerIndex = gameState.currentPlayer;
+//       if (gameState.players[playerIndex]) {
+//         gameState.players.splice(playerIndex, 1);
+//         if (gameState.players.length > 0) {
+//           gameState.currentPlayer = gameState.currentPlayer % gameState.players.length;
+//           gameState.timer = 30;
+//         } else {
+//           gameState.phase = 'waiting';
+//           gameState.currentPlayer = 0;
+//         }
+//         io.emit('gameUpdate', gameState);
+//       }
+//     }
+//   }
+// }, 1000);
 
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
+// Determine port and start server (check availability first)
+server.listen(port, '127.0.0.1', () => {
+  console.log(`Server running on port ${port}`);
+  try {
+    const addr = server.address();
+    console.log('Server address info:', addr);
+  } catch (e) {
+    console.log('Could not get server address info', e && e.message);
+  }
+}).on('error', (err) => {
+  console.error('Failed to start server:', err);
+  process.exit(1);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
 });
 
 

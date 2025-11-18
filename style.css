@@ -612,8 +612,12 @@ footer {
         line-height: 1.5;
     }
 
-    #about h3 {
-        font-size: 1.5rem;
+    .seo-content {
+        padding: 1.5rem;
+    }
+
+    .seo-list {
+        text-align: center;
     }
 }
 
@@ -746,4 +750,45 @@ section.animate {
     animation: fadeInUp 1s ease-out forwards;
     opacity: 0;
     transform: translateY(50px);
+}
+
+.seo-content {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2rem;
+    border-radius: 15px;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    animation: slideInLeft 1s ease-out 0.3s forwards;
+    opacity: 0;
+    transform: translateX(-50px);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.seo-content:hover {
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+    transform: scale(1.02);
+}
+
+.seo-list {
+    list-style: none;
+    padding: 0;
+    text-align: left;
+    margin: 1.5rem 0;
+}
+
+.seo-list li {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+    position: relative;
+    color: #e0e0e0;
+}
+
+.seo-list li::before {
+    content: '🔍';
+    position: absolute;
+    left: 0;
+    color: #00d4ff;
 }

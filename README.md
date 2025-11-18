@@ -1,12 +1,16 @@
-# poker-table
+# WebDesigner.com.pl
 
-Interaktywny stół do pokera online z fikcyjnymi pieniędzmi.
+Landing page dla freelancera Pawła Śliwińskiego, specjalizującego się w tworzeniu stron internetowych, serwisów i sklepów od podstaw.
 
-## Technologie
-- Frontend: React (TypeScript, Vite)
-- Backend: Node.js (Express, Socket.IO)
-- Gra: Symulacja Texas Hold'em
-- Multiplayer: WebSockets
+## Funkcje
+- Futuristic design z animacjami i efektami parallax
+- Sekcje: Hero, O mnie, Umiejętności, Portfolio, Kontakt
+- Umiejętności: Front-End (HTML5, CSS3, JS, React, TS), Back-End (Node.js, PHP, MySQL), Narzędzia (Git, GitHub, VS Code)
+- Formularz kontaktowy wysyłający wiadomości na WhatsApp
+- Link do GitHub
+
+## Uruchomienie
+Otwórz index.html w przeglądarce lub użyj lokalnego serwera: `python -m http.server 8000`
 
 ## Wymagania
 - Node.js >= 14

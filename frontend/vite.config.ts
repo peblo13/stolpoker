@@ -5,7 +5,8 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 3001,
-    allowedHosts: ['epirogenic-draven-affectedly.ngrok-free.dev', 'localhost']
+    port: 3000,
+    allowedHosts: ['epirogenic-draven-affectedly.ngrok-free.dev', 'localhost', '127.0.0.1'],
+    // No proxy for /socket.io — frontend connects directly to backend at 127.0.0.1:8086
   }
 })

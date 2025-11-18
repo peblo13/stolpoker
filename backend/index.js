@@ -163,12 +163,12 @@ io.on('connection', (socket) => {
     // Assign random available seat
     const takenSeats = gameState.players.map(p => p.seat);
     const availableSeats = [];
-    for (let i = 1; i <= 6; i++) {
+    for (let i = 1; i <= 10; i++) {
       if (!takenSeats.includes(i)) availableSeats.push(i);
     }
     if (availableSeats.length > 0) {
       const seat = availableSeats[Math.floor(Math.random() * availableSeats.length)];
-      gameState.players.push({ id: socket.id, name: name.trim(), chips: 1000, seat });
+      gameState.players.push({ id: socket.id, name: name.trim(), chips: 10000, seat });
       console.log('Player added:', name, 'at seat', seat);
       io.emit('gameUpdate', gameState);
     } else {
@@ -182,8 +182,8 @@ io.on('connection', (socket) => {
     if (!name || !name.trim()) { console.log('Invalid name'); return; }
     if (gameState.players.find(p => p.id === socket.id)) { console.log('Already joined'); return; }
     if (gameState.players.find(p => p.seat === seat)) { console.log('Seat taken'); return; }
-    if (seat < 1 || seat > 6) { console.log('Invalid seat'); return; } // Seats 1-6
-    gameState.players.push({ id: socket.id, name: name.trim(), chips: 1000, seat });
+    if (seat < 1 || seat > 10) { console.log('Invalid seat'); return; } // Seats 1-10
+    gameState.players.push({ id: socket.id, name: name.trim(), chips: 10000, seat });
     console.log('Player added:', name, 'at seat', seat);
     // io.emit('gameUpdate', gameState);
   });

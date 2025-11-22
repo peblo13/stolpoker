@@ -1,0 +1,7 @@
+Starting server...
+Frontend dist found - serving static files from C:\serwer\htdocs\poker-table\frontend\dist
+start-test-server: starting backend programmatically
+Server running on port 9000
+Server address info: { address: '0.0.0.0', family: 'IPv4', port: 9000 }
+Accessible via: http://192.168.100.5:9000
+start-test-server: started { port: 9000, bind: '0.0.0.0' }

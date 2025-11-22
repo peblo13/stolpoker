@@ -48,3 +48,51 @@ Zdarzenia: joinGame, bet, raise, call, fold, allIn, startGame, nextPhase, resetG
 
 ## Licencja
 MIT
+
+## Local LAN access & UI Tests (for development)
+
+If you want to open the app on a different device in the same LAN (e.g., iPhone):
+
+1. Start the backend to bind to 0.0.0.0 so it is reachable on all interfaces:
+
+```powershell
+cd backend
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\Start-Server.ps1 -Port 8086 -BindAddr 0.0.0.0 -AdminCode testadmin -AllowFirewall
+```
+
+**Note:** For tests and local debugging, ensure that `DEBUG_API` and `VITE_TEST_MODE` are set.
+
+2. Start the frontend dev server if you prefer hot reload:
+
+```powershell
+cd frontend
+npm run dev -- --host 0.0.0.0
+```
+
+3. Find your PC local-ip (e.g. 192.168.1.42) and open http://<PC-IP>:8086 on your phone (or http://<PC-IP>:5173 if using Vite dev server).
+
+4. To run UI tests (Playwright):
+
+```powershell
+cd frontend
+npm ci
+# Build with VITE_TEST_MODE so the client exposes test helpers during the build
+# On PowerShell:
+$env:VITE_TEST_MODE = '1'; npm run build
+# Start backend with DEBUG_API=1 so the server exposes the debug API used by tests
+cd ..\backend
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\Start-Server.ps1 -Port 8086 -BindAddr 127.0.0.1 -DebugMode
+cd ..\frontend
+npm run test:ui
+OR use the included script to automatically pick a free port, build, start backend and run tests:
+```powershell
+cd C:\serwer\htdocs\poker-table\frontend
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\run-ui-tests.ps1 -Port 0 -BindAddr 127.0.0.1
+```
+```
+
+Notes:
+- The app exposes `/health` endpoint for quick readiness checks.
+- For public access (over internet) use a tunneling tool like ngrok.

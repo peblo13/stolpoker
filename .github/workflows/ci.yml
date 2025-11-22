@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install backend deps
+        working-directory: backend
+        run: npm ci
+      - name: Run backend tests
+        working-directory: backend
+        run: npm test
+
+  frontend-build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci
+      - name: Build frontend
+        working-directory: frontend
+        env:
+          VITE_TEST_MODE: '1'
+        run: npm run build
+
+  ui-tests:
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-build]
+    strategy:
+      matrix:
+        node-version: [18.x]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install backend deps
+        working-directory: backend
+        run: npm ci
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci
+      - name: Build frontend
+        working-directory: frontend
+        env:
+          VITE_TEST_MODE: '1'
+        run: npm run build
+      - name: Start backend server (programmatic)
+        working-directory: backend
+        run: |
+          export PORT=8086
+          export BIND_ADDR=127.0.0.1
+          export DEBUG_API=1
+          nohup node start-ci.js > server.log 2>&1 &
+      - name: Wait for server health
+        run: |
+          for i in {1..20}; do
+            if curl -sSf http://127.0.0.1:8086/health; then
+              echo "Server is ready"; break
+            fi
+            sleep 1
+          done
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps
+      - name: Run UI tests (Playwright)
+        env:
+          PW_URL: http://127.0.0.1:8086
+        working-directory: frontend
+        run: npm run test:ui

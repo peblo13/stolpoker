@@ -1,0 +1,84 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - img "Hazardzik.pl Logo" [ref=e6]
+      - heading "Poker Table" [level=1] [ref=e7]
+      - generic [ref=e11]:
+        - textbox "Wpisz wiadomość..." [ref=e12]
+        - button "Wyślij" [ref=e13] [cursor=pointer]
+    - generic [ref=e14]:
+      - generic [ref=e16]: "SB: 10 / BB: 20"
+      - generic [ref=e17]:
+        - generic [ref=e18]:
+          - generic [ref=e19]: Poziom blindów
+          - combobox "Poziom blindów" [disabled] [ref=e20]:
+            - option "L0" [selected]
+            - option "L1"
+            - option "L2"
+            - option "L3"
+            - option "L4"
+            - option "L5"
+            - option "L6"
+        - generic [ref=e21]:
+          - checkbox "Auto zwiększanie blindów" [disabled] [ref=e22]
+          - generic [ref=e23]: Auto zwiększanie blindów
+        - generic [ref=e24]:
+          - 'button "Dźwięki: On" [ref=e25] [cursor=pointer]'
+          - button "Testuj dźwięk" [ref=e26] [cursor=pointer]
+        - generic [ref=e27]:
+          - textbox "Admin password" [ref=e28]
+          - button "Admin login" [ref=e29] [cursor=pointer]
+  - generic [ref=e32]:
+    - generic:
+      - generic [ref=e33]:
+        - generic "Krupier" [ref=e34]: D
+        - generic "BB" [ref=e35]
+        - generic [ref=e36]:
+          - generic "Alice" [ref=e37]
+          - generic "Alice": A
+          - generic [ref=e45]: "9980"
+      - generic [ref=e46]:
+        - generic "SB" [ref=e47]
+        - generic [ref=e48]:
+          - generic "Bob" [ref=e49]
+          - generic "Bob": B
+          - generic [ref=e57]: "9990"
+          - generic [ref=e58]: "Timer: 30s"
+      - generic "Kliknij, aby usiąść" [ref=e60] [cursor=pointer]: Puste miejsce
+      - generic "Kliknij, aby usiąść" [ref=e62] [cursor=pointer]: Puste miejsce
+      - generic "Kliknij, aby usiąść" [ref=e64] [cursor=pointer]: Puste miejsce
+      - generic "Kliknij, aby usiąść" [ref=e66] [cursor=pointer]: Puste miejsce
+      - generic "Kliknij, aby usiąść" [ref=e68] [cursor=pointer]: Puste miejsce
+      - generic "Kliknij, aby usiąść" [ref=e70] [cursor=pointer]: Puste miejsce
+      - generic "Kliknij, aby usiąść" [ref=e72] [cursor=pointer]: Puste miejsce
+      - generic "Kliknij, aby usiąść" [ref=e74] [cursor=pointer]: Puste miejsce
+    - generic [ref=e75]:
+      - generic [ref=e76]:
+        - generic [ref=e77]: Hazardzik.pl
+        - generic [ref=e80]: "Pula: 60"
+      - generic [ref=e81]:
+        - generic [ref=e82]: "Faza: Pre-flop"
+        - generic [ref=e83]: "Czas: 30s"
+      - generic [ref=e85]:
+        - text: "Twoje karty:"
+        - generic [ref=e86]: 4 of HEARTS
+        - generic [ref=e87]: KING of HEARTS
+  - toolbar "Game controls" [ref=e88]:
+    - generic [ref=e89]:
+      - generic [ref=e91]:
+        - button "Rozpocznij grę" [ref=e92] [cursor=pointer]
+        - button "Reset" [ref=e93] [cursor=pointer]
+      - generic [ref=e95]:
+        - generic [ref=e96]:
+          - slider [ref=e97] [cursor=pointer]: "10"
+          - spinbutton [ref=e98] [cursor=pointer]: "10"
+        - generic [ref=e99]:
+          - button "Podbij" [disabled] [ref=e101]
+          - button "Call" [disabled] [ref=e103]
+          - button "Pas" [ref=e105] [cursor=pointer]
+          - button "Wszystko" [ref=e107] [cursor=pointer]
+          - button "Następna faza" [ref=e109] [cursor=pointer]
+```

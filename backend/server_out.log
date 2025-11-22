@@ -1,0 +1,193 @@
+Starting server...
+Frontend dist found - serving static files from C:\serwer\htdocs\poker-table\frontend\dist
+Server running on port 8086
+Server address info: { address: '127.0.0.1', family: 'IPv4', port: 8086 }
+Accessible via: http://192.168.100.5:8086
+Player connected: xSuL-otrWYVOb9vKAAAB
+Player connected: P0_VD6qw3lHetZ79AAAD
+Join received: { nickname: 'Alice' }
+Player added: Alice at seat 9
+Join received: { nickname: 'Bob' }
+Player added: Bob at seat 8
+Pot after charging blinds: 30
+Dealing cards...
+Emitting gameUpdate on disconnect
+Player disconnected: xSuL-otrWYVOb9vKAAAB
+Emitting gameUpdate on disconnect
+Player disconnected: P0_VD6qw3lHetZ79AAAD
+New deck: 7zskluvnqyvr
+Cards dealt successfully
+Player connected: y5tohGqlFWN_XhJYAAAF
+Player connected: mVyyyN_cCe0hUxW5AAAH
+Join received: { nickname: 'Alice' }
+Player added: Alice at seat 10
+Join received: { nickname: 'Bob' }
+Player added: Bob at seat 8
+Pot after charging blinds: 30
+Dealing cards...
+New deck: 2hm02ym6l20w
+Dealt to player Alice [
+  {
+    code: '2H',
+    image: 'https://deckofcardsapi.com/static/img/2H.png',
+    images: {
+      svg: 'https://deckofcardsapi.com/static/img/2H.svg',
+      png: 'https://deckofcardsapi.com/static/img/2H.png'
+    },
+    value: '2',
+    suit: 'HEARTS'
+  },
+  {
+    code: '9C',
+    image: 'https://deckofcardsapi.com/static/img/9C.png',
+    images: {
+      svg: 'https://deckofcardsapi.com/static/img/9C.svg',
+      png: 'https://deckofcardsapi.com/static/img/9C.png'
+    },
+    value: '9',
+    suit: 'CLUBS'
+  }
+]
+Dealt to player Bob [
+  {
+    code: 'AC',
+    image: 'https://deckofcardsapi.com/static/img/AC.png',
+    images: {
+      svg: 'https://deckofcardsapi.com/static/img/AC.svg',
+      png: 'https://deckofcardsapi.com/static/img/AC.png'
+    },
+    value: 'ACE',
+    suit: 'CLUBS'
+  },
+  {
+    code: 'JS',
+    image: 'https://deckofcardsapi.com/static/img/JS.png',
+    images: {
+      svg: 'https://deckofcardsapi.com/static/img/JS.svg',
+      png: 'https://deckofcardsapi.com/static/img/JS.png'
+    },
+    value: 'JACK',
+    suit: 'SPADES'
+  }
+]
+Cards dealt successfully
+Emitting gameUpdate on disconnect
+Player disconnected: mVyyyN_cCe0hUxW5AAAH
+Emitting gameUpdate on disconnect
+Player disconnected: y5tohGqlFWN_XhJYAAAF
+Player connected: dBk5vYkh18cQiBxZAAAK
+Player connected: 6a53iyNe2P4MGyb_AAAL
+Join received: { nickname: 'Alice' }
+Player added: Alice at seat 6
+Join received: { nickname: 'Bob' }
+Player added: Bob at seat 5
+Pot after charging blinds: 30
+Dealing cards...
+New deck: mzlg4hgs1397
+Dealt to player Alice [
+  {
+    code: 'AC',
+    image: 'https://deckofcardsapi.com/static/img/AC.png',
+    images: {
+      svg: 'https://deckofcardsapi.com/static/img/AC.svg',
+      png: 'https://deckofcardsapi.com/static/img/AC.png'
+    },
+    value: 'ACE',
+    suit: 'CLUBS'
+  },
+  {
+    code: '5C',
+    image: 'https://deckofcardsapi.com/static/img/5C.png',
+    images: {
+      svg: 'https://deckofcardsapi.com/static/img/5C.svg',
+      png: 'https://deckofcardsapi.com/static/img/5C.png'
+    },
+    value: '5',
+    suit: 'CLUBS'
+  }
+]
+Dealt to player Bob [
+  {
+    code: '7D',
+    image: 'https://deckofcardsapi.com/static/img/7D.png',
+    images: {
+      svg: 'https://deckofcardsapi.com/static/img/7D.svg',
+      png: 'https://deckofcardsapi.com/static/img/7D.png'
+    },
+    value: '7',
+    suit: 'DIAMONDS'
+  },
+  {
+    code: '5H',
+    image: 'https://deckofcardsapi.com/static/img/5H.png',
+    images: {
+      svg: 'https://deckofcardsapi.com/static/img/5H.svg',
+      png: 'https://deckofcardsapi.com/static/img/5H.png'
+    },
+    value: '5',
+    suit: 'HEARTS'
+  }
+]
+Cards dealt successfully
+Emitting gameUpdate on disconnect
+Player disconnected: 6a53iyNe2P4MGyb_AAAL
+Emitting gameUpdate on disconnect
+Player disconnected: dBk5vYkh18cQiBxZAAAK
+Player connected: q5JXaF5Mn_qtFILyAAAN
+Player connected: avFYstXd3KIG2dRdAAAP
+Join received: { nickname: 'Alice' }
+Player added: Alice at seat 5
+Join received: { nickname: 'Bob' }
+Player added: Bob at seat 1
+Pot after charging blinds: 30
+Dealing cards...
+New deck: 9l57dluj5zz8
+Dealt to player Alice [
+  {
+    code: '4D',
+    image: 'https://deckofcardsapi.com/static/img/4D.png',
+    images: {
+      svg: 'https://deckofcardsapi.com/static/img/4D.svg',
+      png: 'https://deckofcardsapi.com/static/img/4D.png'
+    },
+    value: '4',
+    suit: 'DIAMONDS'
+  },
+  {
+    code: '2D',
+    image: 'https://deckofcardsapi.com/static/img/2D.png',
+    images: {
+      svg: 'https://deckofcardsapi.com/static/img/2D.svg',
+      png: 'https://deckofcardsapi.com/static/img/2D.png'
+    },
+    value: '2',
+    suit: 'DIAMONDS'
+  }
+]
+Dealt to player Bob [
+  {
+    code: '3H',
+    image: 'https://deckofcardsapi.com/static/img/3H.png',
+    images: {
+      svg: 'https://deckofcardsapi.com/static/img/3H.svg',
+      png: 'https://deckofcardsapi.com/static/img/3H.png'
+    },
+    value: '3',
+    suit: 'HEARTS'
+  },
+  {
+    code: 'QH',
+    image: 'https://deckofcardsapi.com/static/img/QH.png',
+    images: {
+      svg: 'https://deckofcardsapi.com/static/img/QH.svg',
+      png: 'https://deckofcardsapi.com/static/img/QH.png'
+    },
+    value: 'QUEEN',
+    suit: 'HEARTS'
+  }
+]
+Cards dealt successfully
+Emitting gameUpdate on disconnect
+Player disconnected: avFYstXd3KIG2dRdAAAP
+Emitting gameUpdate on disconnect
+Player disconnected: q5JXaF5Mn_qtFILyAAAN

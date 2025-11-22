@@ -164,14 +164,45 @@ h1 {
 
 .table {
   background: radial-gradient(ellipse, #2a2a4e 0%, #1a1a2e 70%, #0f0f23 100%);
-  border-radius: 250px;
-  width: 1000px;
-  height: 500px;
+  border-radius: 12vw; /* scalable border radius */
+  width: min(1000px, 90vw);
+  aspect-ratio: 2/1; /* keep the 1000x500 ratio responsive */
   margin: 0 auto;
   position: relative;
-  border: 5px solid #00d4ff;
+  border: 0.5vw solid #00d4ff;
   box-shadow: 0 0 50px rgba(0, 212, 255, 0.5), inset 0 0 50px rgba(0, 212, 255, 0.1);
   animation: tableGlow 3s ease-in-out infinite alternate;
+}
+
+/* Layout containers for the table and seats */
+.game-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.game-content {
+  position: relative;
+  width: 100%; /* inherits width of `.table` */
+  height: 100%;
+}
+
+/* Add padding to the game content so seats outside the table border can be visible */
+:root { --seat-margin: 80px; }
+.game-content {
+  padding: var(--seat-margin);
+  box-sizing: border-box;
+}
+
+.players {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  transform: none;
+  pointer-events: none;
 }
 
 @keyframes tableGlow {
@@ -230,22 +261,34 @@ h1 {
   box-shadow: 0 4px 15px rgba(255, 107, 107, 0.5);
 }
 
+:root {
+  --seat-scale: 1;
+  --base-seat-w: 140px;
+  --base-seat-h: 90px;
+}
+
 .seat {
   position: absolute;
-  width: 140px;
-  height: 90px;
+  width: calc(var(--base-seat-w) * var(--seat-scale));
+  height: calc(var(--base-seat-h) * var(--seat-scale));
   background: rgba(255, 255, 255, 0.1);
   border-radius: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.8rem;
+  font-size: calc(0.8rem * var(--seat-scale));
   color: white;
   backdrop-filter: blur(5px);
   border: 2px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.3s ease;
+  transform: translate(-50%, -50%);
+  transition: left 0.35s ease, top 0.35s ease, transform 0.35s ease, box-shadow 0.2s ease, background 0.2s ease;
   padding: 8px;
   z-index: 10;
+}
+
+/* hidden seats used for compact layout on tiny screens */
+.seat.hidden {
+  display: none;
 }
 
 .seat:hover {
@@ -267,8 +310,8 @@ h1 {
 }
 
 @keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.05); }
 }
 
 .player-info {
@@ -281,7 +324,7 @@ h1 {
 
 .player-name {
   font-weight: bold;
-  font-size: 0.9rem;
+  font-size: calc(0.9rem * var(--seat-scale));
   color: #00d4ff;
   text-shadow: 0 0 5px rgba(0, 212, 255, 0.5);
   text-align: center;
@@ -289,6 +332,26 @@ h1 {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+}
+
+.nick-bubble {
+  position: absolute;
+  bottom: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  padding: 3px 6px;
+  border-radius: 10px;
+  font-size: calc(0.7rem * var(--seat-scale));
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  pointer-events: none;
+}
+.nick-bubble.mine {
+  background: linear-gradient(45deg, rgba(0,212,255,0.8), rgba(0,255,128,0.8));
+  color: #001;
+  font-weight: 700;
 }
 
 .player-chips-display {
@@ -305,8 +368,8 @@ h1 {
 }
 
 .chip {
-  width: 12px;
-  height: 16px;
+  width: calc(10px * var(--seat-scale));
+  height: calc(14px * var(--seat-scale));
   border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
   position: relative;
 }
@@ -343,7 +406,7 @@ h1 {
 }
 
 .chip-count {
-  font-size: 0.7rem;
+  font-size: calc(0.7rem * var(--seat-scale));
   font-weight: bold;
   color: #ffffff;
   text-shadow: 0 1px 2px rgba(0,0,0,0.5);
@@ -356,9 +419,110 @@ h1 {
 
 .empty-seat {
   color: rgba(255, 255, 255, 0.5);
-  font-size: 0.7rem;
+  font-size: calc(0.7rem * var(--seat-scale));
   text-align: center;
   font-style: italic;
+  cursor: pointer;
+}
+
+.empty-seat:hover {
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.empty-seat:hover::after {
+  content: 'Kliknij, by usiąść';
+  position: absolute;
+  bottom: -36px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.75);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  pointer-events: none;
+}
+
+.seat.current, .seat.occupied.mine {
+  box-shadow: 0 0 10px rgba(0,212,255,0.8) inset, 0 4px 10px rgba(0,0,0,0.5);
+  transform: translate(-50%, calc(-50% - 6px));
+}
+
+.dealer-badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: #ffe66d;
+  color: #000;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  z-index: 20;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+.smallblind-badge, .bigblind-badge {
+  position: absolute;
+  bottom: -8px;
+  left: -8px;
+  background: #f5d160;
+  color: #000;
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-size: 0.7rem;
+  z-index: 20;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+.bigblind-badge { background: #ffb366; }
+
+.toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.75);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  z-index: 2000;
+}
+
+.modal-overlay {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+.modal {
+  background: #0f1724;
+  border-radius: 8px;
+  padding: 18px;
+  min-width: 260px;
+  max-width: 90%;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.modal-title { font-weight: 700; margin-bottom: 8px; }
+.modal-body { margin-bottom: 12px; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.modal-actions button { padding: 8px 12px; }
+
+.join-error {
+  color: #ff9b9b;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
 }
 
 .pot-display {
@@ -370,6 +534,14 @@ h1 {
   flex-direction: column;
   align-items: center;
   gap: 8px;
+}
+
+.center-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #00d4ff;
+  text-shadow: 0 0 10px #00d4ff;
+  animation: rainbow 3s infinite;
 }
 
 .pot-chips {
@@ -432,7 +604,6 @@ h1 {
   border: 1px solid #ff6b6b;
   animation: blink 1s infinite;
 }
-}
 
 .card {
   background: white;
@@ -448,6 +619,76 @@ h1 {
   animation: dealCard 0.5s ease-out;
 }
 
+.controls {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  position: fixed;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+}
+
+/* control bar appearance */
+.controls {
+  background: rgba(0,0,0,0.45);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.controls button[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: grayscale(0.4);
+}
+.controls input[disabled] {
+  opacity: 0.5;
+}
+.controls .disabled-note {
+  font-size: 0.9rem;
+  color: #ffb3b3;
+  margin-left: 8px;
+}
+
+/* Tooltip wrapper for disabled buttons */
+.tooltip-wrapper {
+  position: relative;
+  display: inline-block;
+}
+.tooltip-wrapper[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  z-index: 2000;
+}
+
+/* Click animation */
+.btn-pressed {
+  transform: scale(0.96) !important;
+  transition: transform 120ms ease-in-out;
+}
+.controls button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: linear-gradient(45deg, #00b4ff, #00d4ff);
+  border: none;
+  color: #001;
+  font-weight: 700;
+}
+.btn-icon { height: 18px; width: 18px; vertical-align: middle; margin-right: 8px; }
+.controls button:focus { outline: 2px solid rgba(255,255,255,0.12); }
+.controls button .btn-icon { margin-right: 6px; }
+
 @keyframes dealCard {
   from {
     transform: scale(0) rotateY(180deg);
@@ -457,6 +698,16 @@ h1 {
     transform: scale(1) rotateY(0deg);
     opacity: 1;
   }
+}
+
+@keyframes rainbow {
+  0% { color: #ff0000; text-shadow: 0 0 10px #ff0000; }
+  16% { color: #ff8000; text-shadow: 0 0 10px #ff8000; }
+  33% { color: #ffff00; text-shadow: 0 0 10px #ffff00; }
+  50% { color: #00ff00; text-shadow: 0 0 10px #00ff00; }
+  66% { color: #0080ff; text-shadow: 0 0 10px #0080ff; }
+  83% { color: #8000ff; text-shadow: 0 0 10px #8000ff; }
+  100% { color: #ff0000; text-shadow: 0 0 10px #ff0000; }
 }
 
 /* Responsywność */
@@ -475,11 +726,7 @@ h1 {
     font-size: 1.8rem;
   }
   
-  .seat {
-    width: 60px;
-    height: 45px;
-    font-size: 0.7rem;
-  }
+  :root { --seat-scale: 0.65; }
   
   .card {
     padding: 15px 20px;
@@ -525,11 +772,7 @@ h1 {
     font-size: 2rem;
   }
   
-  .seat {
-    width: 70px;
-    height: 50px;
-    font-size: 0.75rem;
-  }
+  :root { --seat-scale: 0.8; }
   
   .card {
     padding: 18px 25px;
@@ -563,6 +806,32 @@ h1 {
   .controls-left input, .controls-right input {
     width: 120px;
   }
+}
+
+/* Very small screens: reduce sizes further */
+@media (max-width: 420px) {
+  .table { width: 95vw; height: 50vw; border-radius: 20vw; }
+  :root { --seat-scale: 0.5; }
+  .header { display: block; }
+  .join-form input { min-width: 160px; }
+  .card { padding: 12px 16px; font-size: 16px; }
+  .controls { bottom: 2px; left: 8px; right: 8px; transform: none; }
+  .controls button { font-size: 1rem; padding: 10px 12px; }
+  .controls input[type="range"] { width: 100px !important; }
+  .chat { display: none; }
+}
+
+/* Additional mobile-specific sizes */
+@media (max-width: 600px) {
+  :root { --seat-scale: 0.6; }
+  .table { border-width: 0.4vw; }
+  .player-name { font-size: calc(0.85rem * var(--seat-scale)); }
+}
+
+@media (max-width: 420px) {
+  :root { --seat-scale: 0.48; }
+  .table { border-width: 0.35vw; }
+  .player-name { font-size: calc(0.8rem * var(--seat-scale)); }
 }
 
 /* .controls {
@@ -774,6 +1043,47 @@ h1 {
   color: black;
   cursor: pointer;
   font-size: 0.9rem;
+}
+
+/* Animacje */
+@keyframes chipBounce {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.chip {
+  animation: chipBounce 0.5s ease-out;
+}
+
+@keyframes cardFlip {
+  0% { transform: rotateY(0deg); }
+  50% { transform: rotateY(90deg); }
+  100% { transform: rotateY(0deg); }
+}
+
+.card {
+  animation: cardFlip 0.8s ease-in-out;
+}
+
+@keyframes tableGlow {
+  0% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(0, 212, 255, 0.6); }
+  100% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
+}
+
+.table {
+  animation: tableGlow 3s ease-in-out infinite;
+}
+
+@keyframes playerGlow {
+  0% { box-shadow: 0 0 10px rgba(0, 212, 255, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.5); }
+  100% { box-shadow: 0 0 10px rgba(0, 212, 255, 0.2); }
+}
+
+.player.current {
+  animation: playerGlow 2s ease-in-out infinite;
 }
 
 

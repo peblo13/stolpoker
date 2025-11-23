@@ -30,6 +30,8 @@ let gameState = {
   turnTime: 30, // seconds per player turn
   deck: [],
   gameStarted: false
+  ,
+  phaseActionCount: 0
 };
 
 const suits = ['♠', '♥', '♦', '♣'];
@@ -64,8 +66,10 @@ function dealCards() {
 }
 
 function revealFlop() {
+  if (gameState.communityCards.length >= 3) return; // already revealed
+  console.log('Revealing flop');
   // burn one
-  gameState.deck.shift();
+  if (gameState.deck.length > 0) gameState.deck.shift();
   // reveal three
   gameState.communityCards.push(gameState.deck.shift());
   gameState.communityCards.push(gameState.deck.shift());
@@ -73,12 +77,16 @@ function revealFlop() {
 }
 
 function revealTurn() {
-  gameState.deck.shift(); // burn
+  if (gameState.communityCards.length >= 4) return; // already revealed
+  console.log('Revealing turn');
+  if (gameState.deck.length > 0) gameState.deck.shift();
   gameState.communityCards.push(gameState.deck.shift());
 }
 
 function revealRiver() {
-  gameState.deck.shift(); // burn
+  if (gameState.communityCards.length >= 5) return; // already revealed
+  console.log('Revealing river');
+  if (gameState.deck.length > 0) gameState.deck.shift();
   gameState.communityCards.push(gameState.deck.shift());
 }
 
@@ -91,6 +99,7 @@ function startNewHand() {
   gameState.currentBet = 0;
   gameState.dealerPosition = (gameState.dealerPosition + 1) % players.length;
   gameState.currentPlayer = (gameState.dealerPosition + 1) % players.length; // start from small blind by default
+    console.log(`Starting new hand: dealer=${gameState.dealerPosition}, smallBlind=${smallBlindPos}, bigBlind=${bigBlindPos}`);
 
   // Assign blinds
   const smallBlindPos = (gameState.dealerPosition + 1) % players.length;
@@ -114,6 +123,8 @@ function startNewHand() {
   dealCards();
   // current player starts after big blind
   gameState.currentPlayer = (bigBlindPos + 1) % players.length;
+  // reset action counter for the phase
+  gameState.phaseActionCount = 0;
   startPlayerTurn(gameState.currentPlayer);
 
   broadcastGameState();
@@ -137,6 +148,7 @@ function broadcastGameState() {
   };
 
   io.emit('gameState', publicState);
+    console.log(`Broadcast phase=${gameState.phase}, communityCards=${gameState.communityCards.length}, pot=${gameState.pot}`);
 }
 
 let currentTurnInterval = null;
@@ -202,6 +214,8 @@ function allActivePlayersHaveSameBet() {
 
 function advancePhaseIfNeeded() {
   if (!allActivePlayersHaveSameBet()) return false;
+  // Don't advance if nobody acted during the phase (avoid auto-revealing)
+  if (!gameState.phaseActionCount || gameState.phaseActionCount === 0) return false;
 
   // reset individual bets for next round
   players.forEach(p => p.bet = 0);
@@ -210,14 +224,18 @@ function advancePhaseIfNeeded() {
   if (gameState.phase === 'pre-flop') {
     revealFlop();
     gameState.phase = 'flop';
+    gameState.phaseActionCount = 0;
   } else if (gameState.phase === 'flop') {
     revealTurn();
     gameState.phase = 'turn';
+    gameState.phaseActionCount = 0;
   } else if (gameState.phase === 'turn') {
     revealRiver();
     gameState.phase = 'river';
+    gameState.phaseActionCount = 0;
   } else if (gameState.phase === 'river') {
     gameState.phase = 'showdown';
+    gameState.phaseActionCount = 0;
     // For now we don't implement full hand evaluation, just broadcast
   }
 
@@ -293,6 +311,8 @@ io.on('connection', (socket) => {
       gameState.currentBet = player.bet;
     }
 
+    // count an action in this betting round
+    gameState.phaseActionCount = (gameState.phaseActionCount || 0) + 1;
     // Move to next player
     do {
       gameState.currentPlayer = (gameState.currentPlayer + 1) % players.length;
@@ -306,6 +326,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('fold', () => {
+    gameState.phaseActionCount = (gameState.phaseActionCount || 0) + 1;
     const player = players.find(p => p.id === socket.id);
     if (player) {
       player.isActive = false;
@@ -317,6 +338,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('call', () => {
+    gameState.phaseActionCount = (gameState.phaseActionCount || 0) + 1;
     const player = players.find(p => p.id === socket.id);
     if (!player || !player.isActive) return;
 
@@ -333,6 +355,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('raise', (data) => {
+    gameState.phaseActionCount = (gameState.phaseActionCount || 0) + 1;
     const player = players.find(p => p.id === socket.id);
     if (!player || !player.isActive) return;
 

@@ -27,6 +27,7 @@ let gameState = {
   smallBlind: 10,
   bigBlind: 20,
   currentBet: 0,
+  turnTime: 30, // seconds per player turn
   deck: [],
   gameStarted: false
 };
@@ -54,23 +55,31 @@ function shuffle(array) {
 
 function dealCards() {
   gameState.deck = createDeck();
-  let cardIndex = 0;
-
   // Deal hole cards
   for (let i = 0; i < players.length; i++) {
-    players[i].cards = [gameState.deck[cardIndex++], gameState.deck[cardIndex++]];
+    players[i].cards = [gameState.deck.shift(), gameState.deck.shift()];
   }
-
-  // Burn and deal community cards
+  // Reset community cards and keep deck for later reveals
   gameState.communityCards = [];
-  cardIndex++; // burn
-  gameState.communityCards.push(gameState.deck[cardIndex++]); // flop 1
-  gameState.communityCards.push(gameState.deck[cardIndex++]); // flop 2
-  gameState.communityCards.push(gameState.deck[cardIndex++]); // flop 3
-  cardIndex++; // burn
-  gameState.communityCards.push(gameState.deck[cardIndex++]); // turn
-  cardIndex++; // burn
-  gameState.communityCards.push(gameState.deck[cardIndex++]); // river
+}
+
+function revealFlop() {
+  // burn one
+  gameState.deck.shift();
+  // reveal three
+  gameState.communityCards.push(gameState.deck.shift());
+  gameState.communityCards.push(gameState.deck.shift());
+  gameState.communityCards.push(gameState.deck.shift());
+}
+
+function revealTurn() {
+  gameState.deck.shift(); // burn
+  gameState.communityCards.push(gameState.deck.shift());
+}
+
+function revealRiver() {
+  gameState.deck.shift(); // burn
+  gameState.communityCards.push(gameState.deck.shift());
 }
 
 function startNewHand() {
@@ -81,6 +90,7 @@ function startNewHand() {
   gameState.pot = 0;
   gameState.currentBet = 0;
   gameState.dealerPosition = (gameState.dealerPosition + 1) % players.length;
+  gameState.currentPlayer = (gameState.dealerPosition + 1) % players.length; // start from small blind by default
 
   // Assign blinds
   const smallBlindPos = (gameState.dealerPosition + 1) % players.length;
@@ -101,9 +111,10 @@ function startNewHand() {
   players[bigBlindPos].bet = gameState.bigBlind;
   gameState.pot = gameState.smallBlind + gameState.bigBlind;
   gameState.currentBet = gameState.bigBlind;
-
   dealCards();
+  // current player starts after big blind
   gameState.currentPlayer = (bigBlindPos + 1) % players.length;
+  startPlayerTurn(gameState.currentPlayer);
 
   broadcastGameState();
 }
@@ -126,6 +137,100 @@ function broadcastGameState() {
   };
 
   io.emit('gameState', publicState);
+}
+
+let currentTurnInterval = null;
+let currentTurnTimeout = null;
+let timeLeft = 0;
+
+function startPlayerTurn(index) {
+  // clear previous timers
+  if (currentTurnInterval) clearInterval(currentTurnInterval);
+  if (currentTurnTimeout) clearTimeout(currentTurnTimeout);
+
+  // skip inactive players
+  if (!players[index] || !players[index].isActive) {
+    // find next active
+    let next = index;
+    do {
+      next = (next + 1) % players.length;
+    } while (players[next] && !players[next].isActive && next !== index);
+    index = next;
+  }
+
+  gameState.currentPlayer = index;
+  timeLeft = gameState.turnTime;
+  io.emit('turnTimer', { playerId: players[index].id, timeLeft });
+
+  currentTurnInterval = setInterval(() => {
+    timeLeft -= 1;
+    if (timeLeft <= 0) {
+      clearInterval(currentTurnInterval);
+    }
+    io.emit('turnTimer', { playerId: players[index].id, timeLeft });
+  }, 1000);
+
+  currentTurnTimeout = setTimeout(() => {
+    // auto fold on timeout
+    const player = players.find(p => p.id === players[index].id);
+    if (player) {
+      player.isActive = false;
+    }
+    // advance turn
+    advanceToNextPlayer();
+    broadcastGameState();
+  }, gameState.turnTime * 1000);
+}
+
+function advanceToNextPlayer() {
+  // find next active
+  let next = gameState.currentPlayer;
+  let tries = 0;
+  do {
+    next = (next + 1) % players.length;
+    tries += 1;
+  } while (players[next] && !players[next].isActive && tries <= players.length);
+  gameState.currentPlayer = next;
+  startPlayerTurn(gameState.currentPlayer);
+}
+
+function allActivePlayersHaveSameBet() {
+  const active = players.filter(p => p.isActive);
+  if (active.length <= 1) return true;
+  return active.every(p => p.bet === gameState.currentBet);
+}
+
+function advancePhaseIfNeeded() {
+  if (!allActivePlayersHaveSameBet()) return false;
+
+  // reset individual bets for next round
+  players.forEach(p => p.bet = 0);
+  gameState.currentBet = 0;
+
+  if (gameState.phase === 'pre-flop') {
+    revealFlop();
+    gameState.phase = 'flop';
+  } else if (gameState.phase === 'flop') {
+    revealTurn();
+    gameState.phase = 'turn';
+  } else if (gameState.phase === 'turn') {
+    revealRiver();
+    gameState.phase = 'river';
+  } else if (gameState.phase === 'river') {
+    gameState.phase = 'showdown';
+    // For now we don't implement full hand evaluation, just broadcast
+  }
+
+  // set current player to first active after dealer
+  let startIndex = gameState.dealerPosition;
+  let next = startIndex;
+  do {
+    next = (next + 1) % players.length;
+  } while (!players[next].isActive && next !== startIndex);
+  gameState.currentPlayer = next;
+  startPlayerTurn(gameState.currentPlayer);
+  broadcastGameState();
+  return true;
 }
 
 app.get('/', (req, res) => {
@@ -192,7 +297,11 @@ io.on('connection', (socket) => {
     do {
       gameState.currentPlayer = (gameState.currentPlayer + 1) % players.length;
     } while (!players[gameState.currentPlayer].isActive);
+    // restart timer for next player
+    startPlayerTurn(gameState.currentPlayer);
 
+    // check if betting round complete and advance
+    advancePhaseIfNeeded();
     broadcastGameState();
   });
 
@@ -201,6 +310,9 @@ io.on('connection', (socket) => {
     if (player) {
       player.isActive = false;
     }
+    // Move to next player
+    advanceToNextPlayer();
+    advancePhaseIfNeeded();
     broadcastGameState();
   });
 
@@ -214,6 +326,9 @@ io.on('connection', (socket) => {
     player.bet += amount;
     gameState.pot += amount;
 
+    // Move to next player
+    advanceToNextPlayer();
+    advancePhaseIfNeeded();
     broadcastGameState();
   });
 
@@ -229,6 +344,9 @@ io.on('connection', (socket) => {
     gameState.pot += amount;
     gameState.currentBet = player.bet;
 
+    // Move to next player
+    advanceToNextPlayer();
+    // after a raise, ensure betting continues; do not auto-advance phase here.
     broadcastGameState();
   });
 

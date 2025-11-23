@@ -6,10 +6,11 @@ ENV NODE_ENV=production
 ARG PORT=8080
 ENV PORT=${PORT}
 
-COPY backend/package*.json ./
+COPY package*.json ./
 RUN npm ci --only=production --silent
 
-COPY backend/ ./
+# Copy the rest of the backend sources from the build context (backend/ directory)
+COPY . ./
 
 # Perform system updates, add curl for healthcheck, create run wrapper and non-root user
 USER root

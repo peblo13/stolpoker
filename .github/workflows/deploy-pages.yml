@@ -1,0 +1,25 @@
+name: Deploy Pages
+
+on:
+  push:
+    branches: [main, master]
+    paths: [ 'frontend/**', '.github/workflows/deploy-pages.yml' ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Publish to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          publish_dir: ./frontend
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          commit_message: Deploy frontend to GitHub Pages

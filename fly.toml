@@ -1,0 +1,21 @@
+[app]
+  # Replace with your Fly app name if different
+  name = "stolpoker"
+  # Build using the backend Dockerfile (build context is repo root)
+  [build]
+    dockerfile = "backend/Dockerfile"
+
+[env]
+  PORT = "8080"
+  BIND_ADDR = "0.0.0.0"
+
+[processes]
+  # Match Dockerfile which already creates an executable /run.sh
+  app = "/run.sh"
+
+[[services]]
+  # Health check configuration - confirm your app exposes /health
+  http_checks = [{ path = "/health", interval = 10000, timeout = 2000, grace_period = 20000, method = "GET" }]
+  internal_port = 8080
+  processes = ["app"]
+  protocol = "tcp"

@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Stół Poker - Demo</title>
+    <style>
+      body { font-family: Arial, Helvetica, sans-serif; padding: 2rem; }
+      #status { font-weight: bold; margin-bottom: 1rem; }
+      #log { white-space: pre-wrap; background: #f2f2f2; padding: 1rem; border-radius: 6px; }
+      button { margin-right: .5rem; }
+    </style>
+  </head>
+  <body>
+    <h1>Stół Poker - Frontend Demo</h1>
+    <div id="status">Łączenie...</div>
+    <div>
+      <button id="ping">Wyślij ping</button>
+      <button id="reload">Odśwież połączenie</button>
+    </div>
+    <h3>Log</h3>
+    <div id="log">—</div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+      (function(){
+        const log = (msg)=> { const el = document.getElementById('log'); el.textContent = `${new Date().toLocaleTimeString()} — ${msg}\n` + el.textContent }
+
+        // Default behavior: use production host if served over HTTPS, else localhost
+        const defaultHost = (location.protocol === 'https:') ? 'https://' + (location.hostname || 'stolpoker.fly.dev') : 'http://localhost:8080';
+
+        // When deployed on GitHub Pages, set VITE_SOCKET_URL in code or use defaultHost
+        const socketHost = window.VITE_SOCKET_URL || defaultHost;
+
+        function connect() {
+          const statusEl = document.getElementById('status');
+          statusEl.textContent = `Łączenie z ${socketHost}`;
+          const socket = io(socketHost, { transports: ['websocket'] });
+
+          socket.on('connect', () => {
+            statusEl.textContent = `Połączono: ${socket.id}`;
+            log('Połączono: ' + socket.id);
+          });
+          socket.on('disconnect', (reason) => {
+            statusEl.textContent = 'Rozłączono';
+            log('Rozłączono: ' + reason);
+          });
+          socket.on('pong', () => log('Otrzymano pong'));
+
+          document.getElementById('ping').onclick = ()=> {
+            socket.emit('ping');
+            log('Wysłano ping');
+          }
+          document.getElementById('reload').onclick = ()=> {
+            socket.close();
+            connect();
+          }
+        }
+
+        connect();
+      })()
+    </script>
+  </body>
+</html>

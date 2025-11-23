@@ -29,6 +29,7 @@ jobs:
         run: |
           mkdir -p docs
           cp -r frontend/dist/* docs/
+          cp .nojekyll docs/ || true
           echo "Deployed to docs folder"
 
       - name: Commit and push docs

@@ -20,7 +20,7 @@
         const log = (msg)=> { const el = document.getElementById('log'); el.textContent = `${new Date().toLocaleTimeString()} — ${msg}\n` + el.textContent }
 
         // Default behavior: use production host if served over HTTPS, else localhost
-        const defaultHost = (location.protocol === 'https:') ? 'https://' + (location.hostname || 'stolpoker.fly.dev') : 'http://localhost:8080';
+        const defaultHost = (location.protocol === 'https:') ? 'https://' + (location.hostname || 'stolpoker-xw46qq.fly.dev') : 'http://localhost:8080';
 
         // When deployed on GitHub Pages, set VITE_SOCKET_URL in code or use defaultHost
         const socketHost = window.VITE_SOCKET_URL || defaultHost;

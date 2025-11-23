@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import './App.css';
 
-const VITE_SOCKET_URL = (import.meta as any).env?.VITE_SOCKET_URL || (window.location.hostname === 'peblo13.github.io' ? 'https://stolpoker.fly.dev' : 'http://localhost:8080');
+const VITE_SOCKET_URL = (import.meta as any).env?.VITE_SOCKET_URL || (window.location.hostname === 'peblo13.github.io' ? 'https://stolpoker-xw46qq.fly.dev' : 'http://localhost:8080');
 
 interface Player {
   id: string;

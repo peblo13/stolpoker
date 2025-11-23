@@ -1,0 +1,74 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - img "Hazardzik.pl Logo" [ref=e6]
+      - heading "Poker Table" [level=1] [ref=e7]
+      - generic [ref=e11]:
+        - textbox "Wpisz wiadomość..." [ref=e12]
+        - button "Wyślij" [ref=e13] [cursor=pointer]
+    - generic [ref=e14]:
+      - generic [ref=e16]: "SB: 10 / BB: 20"
+      - generic [ref=e17]:
+        - generic [ref=e18]:
+          - generic [ref=e19]: Poziom blindów
+          - combobox "Poziom blindów" [disabled] [ref=e20]:
+            - option "L0" [selected]
+            - option "L1"
+            - option "L2"
+            - option "L3"
+            - option "L4"
+            - option "L5"
+            - option "L6"
+        - generic [ref=e21]:
+          - checkbox "Auto zwiększanie blindów" [disabled] [ref=e22]
+          - generic [ref=e23]: Auto zwiększanie blindów
+        - generic [ref=e24]:
+          - 'button "Dźwięki: On" [ref=e25] [cursor=pointer]'
+          - button "Testuj dźwięk" [ref=e26] [cursor=pointer]
+        - generic [ref=e27]:
+          - textbox "Admin password" [ref=e28]
+          - button "Admin login" [ref=e29] [cursor=pointer]
+  - generic [ref=e32]:
+    - generic:
+      - generic [ref=e33]:
+        - generic "Krupier" [ref=e34]: D
+        - generic [ref=e35]:
+          - generic "Alice" [ref=e36]
+          - generic "Alice": A
+          - generic [ref=e44]: "10000"
+      - generic [ref=e46]:
+        - generic "Bob" [ref=e47]
+        - generic "Bob": B
+        - generic [ref=e55]: "10000"
+      - generic "Kliknij, aby usiąść" [ref=e57] [cursor=pointer]: Puste miejsce
+      - generic "Kliknij, aby usiąść" [ref=e59] [cursor=pointer]: Puste miejsce
+      - generic "Kliknij, aby usiąść" [ref=e61] [cursor=pointer]: Puste miejsce
+      - generic "Kliknij, aby usiąść" [ref=e63] [cursor=pointer]: Puste miejsce
+      - generic "Kliknij, aby usiąść" [ref=e65] [cursor=pointer]: Puste miejsce
+      - generic "Kliknij, aby usiąść" [ref=e67] [cursor=pointer]: Puste miejsce
+      - generic "Kliknij, aby usiąść" [ref=e69] [cursor=pointer]: Puste miejsce
+      - generic "Kliknij, aby usiąść" [ref=e71] [cursor=pointer]: Puste miejsce
+    - generic [ref=e72]:
+      - generic [ref=e73]:
+        - generic [ref=e74]: Hazardzik.pl
+        - generic [ref=e75]: "Pula: 0"
+      - generic [ref=e77]: "Faza: Oczekiwanie"
+  - toolbar "Game controls" [ref=e78]:
+    - generic [ref=e79]:
+      - generic [ref=e81]:
+        - button "Rozpocznij grę" [ref=e82] [cursor=pointer]
+        - button "Reset" [ref=e83] [cursor=pointer]
+      - generic [ref=e85]:
+        - generic [ref=e86]:
+          - slider [ref=e87] [cursor=pointer]: "10"
+          - spinbutton [ref=e88] [cursor=pointer]: "10"
+        - generic [ref=e89]:
+          - button "Postaw" [disabled] [ref=e91]
+          - button "Sprawdź" [disabled] [ref=e92]
+          - button "Pas" [ref=e94] [cursor=pointer]
+          - button "Wszystko" [ref=e96] [cursor=pointer]
+          - button "Następna faza" [ref=e98] [cursor=pointer]
+```

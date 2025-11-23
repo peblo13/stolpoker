@@ -11,7 +11,8 @@ param (
 $env:PORT = $Port
 $env:BIND_ADDR = $BindAddr
 $env:ADMIN_CODE = $AdminCode
-if ($DebugMode) { $env:DEBUG_API = '1'; Write-Host "Debug API enabled (DEBUG_API=1)" }
+  if ($DebugMode) { $env:DEBUG_API = '1'; Write-Host "Debug API enabled (DEBUG_API=1)" }
+  if (-not $BindAddr) { $BindAddr = '0.0.0.0' }
 if ($DealDelayMs -gt 0) { $env:DEAL_DELAY_MS = $DealDelayMs; Write-Host "Deal delay set: ${DealDelayMs}ms" }
 # (DEAL_DELAY_MS is used for dealing delay; legacy variable removed)
 

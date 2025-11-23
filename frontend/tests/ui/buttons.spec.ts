@@ -424,8 +424,21 @@ test.describe('Action buttons', () => {
           await locator.click({ force: true }).catch(() => actor.evaluate((act: any) => { try { document.querySelector('button[data-action="' + act + '"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true })); } catch (e) {} }, action));
           // Wait for a server gameUpdate or state change; try multiple patterns
           let changed = false;
-          for (let i = 0; i < 20; i++) {
-            try { const r = await request.get('/api/debug/state'); const j = await r.json(); if ((j.gameState.pot || 0) !== potValue) { changed = true; potValue = j.gameState.pot || 0; break; } } catch (e) {}
+          for (let i = 0; i < 60; i++) {
+            try {
+              const r = await request.get('/api/debug/state'); const j = await r.json();
+              // pot changed
+              if ((j.gameState.pot || 0) !== potValue) { changed = true; potValue = j.gameState.pot || 0; break; }
+              // player contribution changed
+              const myIdLatest = await actor.evaluate(() => (window as any).__myId || null);
+              const meNow = (j.gameState.players || []).find((p) => p.id === myIdLatest);
+              const prevContribution = meNow && meNow.currentContribution || 0;
+              if (prevContribution > myPriorContribution) { changed = true; break; }
+              // current player progressed
+              if (typeof j.gameState.currentPlayer !== 'undefined') {
+                if (j.gameState.currentPlayer !== current) { changed = true; break; }
+              }
+            } catch (e) { }
             await new Promise(r => setTimeout(r, 200));
           }
           // It's okay if pot doesn't change for 'check' or 'fold' sometimes; we just assert no crash

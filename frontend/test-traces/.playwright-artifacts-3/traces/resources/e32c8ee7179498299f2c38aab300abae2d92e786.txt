@@ -1,0 +1,1 @@
+42["joinSeat",{"name":"Bob","seat":2}]

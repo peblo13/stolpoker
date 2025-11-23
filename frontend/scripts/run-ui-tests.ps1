@@ -76,6 +76,24 @@ function Retry-Command([scriptblock]$cmd, [int]$retries = 3, [int]$backoffSec = 
   return $false
 }
 
+# Helper: ensure npm ci runs successfully, cleaning up node_modules on EBUSY / lock errors
+function Ensure-NodeDeps([string]$path) {
+  $cwd = Get-Location
+  try {
+    Set-Location -Path $path
+    $ok = Retry-Command { npm ci } 3 3
+    if (-not $ok) {
+      Write-Host "npm ci failed; attempting to remove node_modules and retry" -ForegroundColor Yellow
+      try { Remove-Item -Recurse -Force -Path "$path\node_modules" -ErrorAction SilentlyContinue } catch {}
+      try { Remove-Item -Force -Path "$path\package-lock.json" -ErrorAction SilentlyContinue } catch {}
+      $ok2 = Retry-Command { npm ci } 3 3
+      if (-not $ok2) { Write-Host "npm ci still failed; falling back to npm install" -ForegroundColor Yellow; Retry-Command { npm install } 3 3 }
+    }
+  } finally {
+    Set-Location -Path $cwd
+  }
+}
+
 # Avoid engine strict failures under newer Node versions (developer may still need Node 18 for production parity)
 npm config set ignore-engines true
 Retry-Command { npm ci } 3 3

@@ -1,7 +1,94 @@
 Starting server...
 Frontend dist found - serving static files from C:\serwer\htdocs\poker-table\frontend\dist
 start-test-server: starting backend programmatically
-Server running on port 9000
-Server address info: { address: '0.0.0.0', family: 'IPv4', port: 9000 }
-Accessible via: http://192.168.100.5:9000
-start-test-server: started { port: 9000, bind: '0.0.0.0' }
+Server running on port 9001
+Server address info: { address: '0.0.0.0', family: 'IPv4', port: 9001 }
+Accessible via: http://192.168.100.5:9001
+start-test-server: started { port: 9001, bind: '0.0.0.0' }
+Player connected: YSaEktS5iOmwr4P2AAAB
+Join seat received: Alice seat: 1
+Player added: Alice at seat 1
+Player connected: HVYPb36mcv0fkflUAAAD
+Join seat received: Bob seat: 2
+Player added: Bob at seat 2
+Emitting gameUpdate on disconnect - reason: transport close transport: websocket remoteAddress: 192.168.100.5 handshakeTime: Sat Nov 22 2025 18:23:42 GMT+0100 (czas środkowoeuropejski standardowy) wasCurrent: false
+Player disconnected: YSaEktS5iOmwr4P2AAAB reason: transport close transport: websocket
+Emitting gameUpdate on disconnect - reason: transport close transport: websocket remoteAddress: 192.168.100.5 handshakeTime: Sat Nov 22 2025 18:23:43 GMT+0100 (czas środkowoeuropejski standardowy) wasCurrent: false
+Player disconnected: HVYPb36mcv0fkflUAAAD reason: transport close transport: websocket
+Player connected: s3cUbG-1RIrZn-YaAAAF
+Join seat received: Alice seat: 1
+Player added: Alice at seat 1
+Player connected: RLaWmuw_clN276bmAAAH
+Join seat received: Bob seat: 2
+Player added: Bob at seat 2
+Emitting gameUpdate on disconnect - reason: transport close transport: websocket remoteAddress: 192.168.100.5 handshakeTime: Sat Nov 22 2025 18:26:05 GMT+0100 (czas środkowoeuropejski standardowy) wasCurrent: false
+Player disconnected: s3cUbG-1RIrZn-YaAAAF reason: transport close transport: websocket
+Emitting gameUpdate on disconnect - reason: transport close transport: websocket remoteAddress: 192.168.100.5 handshakeTime: Sat Nov 22 2025 18:26:06 GMT+0100 (czas środkowoeuropejski standardowy) wasCurrent: false
+Player disconnected: RLaWmuw_clN276bmAAAH reason: transport close transport: websocket
+Player connected: grKGa0Q3Mzb6ekIXAAAJ
+Join seat received: Alice seat: 1
+Player added: Alice at seat 1
+Player connected: D_G0x2XBa5daYOGeAAAL
+Join seat received: Bob seat: 2
+Player added: Bob at seat 2
+Emitting gameUpdate on disconnect - reason: transport close transport: websocket remoteAddress: 192.168.100.5 handshakeTime: Sat Nov 22 2025 18:28:34 GMT+0100 (czas środkowoeuropejski standardowy) wasCurrent: false
+Player disconnected: D_G0x2XBa5daYOGeAAAL reason: transport close transport: websocket
+Emitting gameUpdate on disconnect - reason: transport close transport: websocket remoteAddress: 192.168.100.5 handshakeTime: Sat Nov 22 2025 18:28:33 GMT+0100 (czas środkowoeuropejski standardowy) wasCurrent: false
+Player disconnected: grKGa0Q3Mzb6ekIXAAAJ reason: transport close transport: websocket
+Player connected: oJ0E9dncivZejTT8AAAN
+Emitting gameUpdate on disconnect - reason: transport close transport: websocket remoteAddress: 192.168.100.5 handshakeTime: Sat Nov 22 2025 18:30:55 GMT+0100 (czas środkowoeuropejski standardowy) wasCurrent: false
+Player disconnected: oJ0E9dncivZejTT8AAAN reason: transport close transport: websocket
+Player connected: 8gn_arqBHcT20acaAAAP
+Join seat received: Alice seat: 1
+Player added: Alice at seat 1
+Player connected: z-x0TalhVqHMTc5qAAAR
+Join seat received: Bob seat: 2
+Player added: Bob at seat 2
+Pot after charging blinds: 30
+Dealing cards...
+New deck: jfhb9lbz7v0v
+Dealt to player Alice {
+  code: '8D',
+  image: 'https://deckofcardsapi.com/static/img/8D.png',
+  images: {
+    svg: 'https://deckofcardsapi.com/static/img/8D.svg',
+    png: 'https://deckofcardsapi.com/static/img/8D.png'
+  },
+  value: '8',
+  suit: 'DIAMONDS'
+}
+Dealt to player Bob {
+  code: '3S',
+  image: 'https://deckofcardsapi.com/static/img/3S.png',
+  images: {
+    svg: 'https://deckofcardsapi.com/static/img/3S.svg',
+    png: 'https://deckofcardsapi.com/static/img/3S.png'
+  },
+  value: '3',
+  suit: 'SPADES'
+}
+Dealt to player Alice {
+  code: '6C',
+  image: 'https://deckofcardsapi.com/static/img/6C.png',
+  images: {
+    svg: 'https://deckofcardsapi.com/static/img/6C.svg',
+    png: 'https://deckofcardsapi.com/static/img/6C.png'
+  },
+  value: '6',
+  suit: 'CLUBS'
+}
+Dealt to player Bob {
+  code: '0C',
+  image: 'https://deckofcardsapi.com/static/img/0C.png',
+  images: {
+    svg: 'https://deckofcardsapi.com/static/img/0C.svg',
+    png: 'https://deckofcardsapi.com/static/img/0C.png'
+  },
+  value: '10',
+  suit: 'CLUBS'
+}
+Cards dealt successfully
+Emitting gameUpdate on disconnect - reason: transport close transport: websocket remoteAddress: 192.168.100.5 handshakeTime: Sat Nov 22 2025 18:30:57 GMT+0100 (czas środkowoeuropejski standardowy) wasCurrent: false
+Player disconnected: z-x0TalhVqHMTc5qAAAR reason: transport close transport: websocket
+Emitting gameUpdate on disconnect - reason: transport close transport: websocket remoteAddress: 192.168.100.5 handshakeTime: Sat Nov 22 2025 18:30:57 GMT+0100 (czas środkowoeuropejski standardowy) wasCurrent: true
+Player disconnected: 8gn_arqBHcT20acaAAAP reason: transport close transport: websocket

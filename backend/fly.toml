@@ -1,0 +1,38 @@
+# fly.toml - example Fly.io configuration. Replace app = "poker-table" with your Fly app name.
+app = "poker-table"
+kill_signal = "SIGINT"
+kill_timeout = 5
+processes = []
+
+[build]
+  builder = "Dockerfile"
+
+[env]
+  PORT = "9000"
+  DEBUG_API = "1"
+  ADMIN_CODE = "testadmin"
+
+[experimental]
+  auto_rollback = true
+
+[deploy]
+  release_command = ""
+
+# You can configure services/ports for Fly private networking
+[[services]]
+  internal_port = 9000
+  protocol = "tcp"
+
+  [[services.ports]]
+    handlers = ["http"]
+    port = 80
+
+  [[services.ports]]
+    handlers = ["tls"]
+    port = 443
+
+  [[services.tcp_checks]]
+    interval = 10000
+    timeout = 2000
+    grace_period = 60000
+    restart_limit = 0

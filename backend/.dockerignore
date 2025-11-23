@@ -3,16 +3,9 @@ node_modules
 dist
 build
 npm-debug.log
-Dockerfile
 \.git
 frontend
 README.md
 docs
 temp-poker
 node_modules
-*.log
-dist
-build
-npm-debug.log
-Dockerfile
-\.git

@@ -236,7 +236,11 @@ function advancePhaseIfNeeded() {
   } else if (gameState.phase === 'river') {
     gameState.phase = 'showdown';
     gameState.phaseActionCount = 0;
-    // For now we don't implement full hand evaluation, just broadcast
+    // Determine winners and award pot
+    const winners = determineWinners();
+    if (winners && winners.length > 0) {
+      awardPotToWinners(winners);
+    }
   }
 
   // set current player to first active after dealer
@@ -249,6 +253,160 @@ function advancePhaseIfNeeded() {
   startPlayerTurn(gameState.currentPlayer);
   broadcastGameState();
   return true;
+}
+
+// --- Hand evaluation and pot awarding ---
+function parseCard(card) {
+  // card like '10♠' or 'A♣' or 'J♦'
+  const suit = card.slice(-1);
+  const rank = card.slice(0, -1);
+  const order = { '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14 };
+  return { rank, suit, value: order[rank] || 0 };
+}
+
+function getCombinations(arr, k) {
+  const res = [];
+  function helper(start, combo) {
+    if (combo.length === k) {
+      res.push(combo.slice());
+      return;
+    }
+    for (let i = start; i < arr.length; i++) {
+      combo.push(arr[i]);
+      helper(i + 1, combo);
+      combo.pop();
+    }
+  }
+  helper(0, []);
+  return res;
+}
+
+// Evaluate 5-card hand and return [category, tiebreakers...]
+function evaluate5(cards5) {
+  // cards5: array of strings like 'A♠'
+  const parsed = cards5.map(parseCard);
+  const values = parsed.map(c => c.value).sort((a, b) => b - a);
+  const suits = parsed.map(c => c.suit);
+
+  const counts = {};
+  for (const v of values) counts[v] = (counts[v] || 0) + 1;
+  const uniqValuesDesc = Object.keys(counts).map(Number).sort((a,b)=>b-a);
+
+  const isFlush = suits.every(s => s === suits[0]);
+  // straight detection (handle wheel A-2-3-4-5)
+  let isStraight = false;
+  let topStraight = 0;
+  const vSet = [...new Set(values)];
+  if (vSet.length === 5) {
+    const max = Math.max(...vSet);
+    const min = Math.min(...vSet);
+    if (max - min === 4) {
+      isStraight = true;
+      topStraight = max;
+    } else {
+      // wheel 14,5,4,3,2 -> 5-high straight
+      if (vSet.includes(14) && vSet.includes(2) && vSet.includes(3) && vSet.includes(4) && vSet.includes(5)) {
+        isStraight = true;
+        topStraight = 5;
+      }
+    }
+  }
+
+  // Count groups
+  const countsArr = Object.entries(counts).map(([k,v])=>({v:Number(k),c:v})).sort((a,b)=>b.c - a.c || b.v - a.v);
+
+  // Ranking order: 8 StraightFlush,7 Four,6 FullHouse,5 Flush,4 Straight,3 Trips,2 TwoPair,1 Pair,0 HighCard
+  if (isStraight && isFlush) {
+    return [8, topStraight, ...values];
+  }
+  if (countsArr[0].c === 4) {
+    const four = countsArr[0].v;
+    const kicker = values.find(v => v !== four);
+    return [7, four, kicker];
+  }
+  if (countsArr[0].c === 3 && countsArr[1] && countsArr[1].c === 2) {
+    const trips = countsArr[0].v;
+    const pair = countsArr[1].v;
+    return [6, trips, pair];
+  }
+  if (isFlush) return [5, ...values];
+  if (isStraight) return [4, topStraight];
+  if (countsArr[0].c === 3) {
+    const trips = countsArr[0].v;
+    const kickers = values.filter(v => v !== trips);
+    return [3, trips, ...kickers];
+  }
+  if (countsArr[0].c === 2 && countsArr[1] && countsArr[1].c === 2) {
+    const pairHigh = countsArr[0].v;
+    const pairLow = countsArr[1].v;
+    const kicker = values.find(v => v !== pairHigh && v !== pairLow);
+    return [2, pairHigh, pairLow, kicker];
+  }
+  if (countsArr[0].c === 2) {
+    const pair = countsArr[0].v;
+    const kickers = values.filter(v => v !== pair);
+    return [1, pair, ...kickers];
+  }
+  return [0, ...values];
+}
+
+function compareScore(a, b) {
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    const av = a[i] || 0;
+    const bv = b[i] || 0;
+    if (av > bv) return 1;
+    if (av < bv) return -1;
+  }
+  return 0;
+}
+
+function bestHandForPlayer(player) {
+  const cards = [...player.cards, ...gameState.communityCards];
+  if (cards.length < 5) return null;
+  const combos = getCombinations(cards, 5);
+  let best = null;
+  for (const combo of combos) {
+    const score = evaluate5(combo);
+    if (!best || compareScore(score, best.score) === 1) {
+      best = { combo, score };
+    }
+  }
+  return best;
+}
+
+function determineWinners() {
+  const active = players.filter(p => p.isActive);
+  if (active.length === 0) return [];
+  const results = active.map(p => ({ player: p, best: bestHandForPlayer(p) }));
+  results.forEach(r => { if (!r.best) r.best = { score: [0] }; });
+  let bestScore = null;
+  let winners = [];
+  for (const r of results) {
+    if (!bestScore || compareScore(r.best.score, bestScore) === 1) {
+      bestScore = r.best.score;
+      winners = [r.player];
+    } else if (compareScore(r.best.score, bestScore) === 0) {
+      winners.push(r.player);
+    }
+  }
+  return winners;
+}
+
+function awardPotToWinners(winners) {
+  if (!winners || winners.length === 0) return;
+  const share = Math.floor(gameState.pot / winners.length);
+  winners.forEach((w, idx) => {
+    w.chips += share;
+  });
+  const remainder = gameState.pot - share * winners.length;
+  if (remainder > 0) {
+    winners[0].chips += remainder;
+  }
+  gameState.pot = 0;
+  players.forEach(p => p.bet = 0);
+  gameState.gameStarted = false;
+  setTimeout(startNewHand, 2000);
+  broadcastGameState();
 }
 
 app.get('/', (req, res) => {

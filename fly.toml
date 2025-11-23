@@ -1,9 +1,8 @@
-[app]
-  # Replace with your Fly app name if different
-  name = "stolpoker"
-  # Build using the backend Dockerfile (build context is repo root)
-  [build]
-    dockerfile = "backend/Dockerfile"
+app = "stolpoker"
+
+# Build using the backend Dockerfile (build context is repo root)
+[build]
+  dockerfile = "backend/Dockerfile"
 
 [env]
   PORT = "8080"
@@ -18,4 +17,11 @@
   http_checks = [{ path = "/health", interval = 10000, timeout = 2000, grace_period = 20000, method = "GET" }]
   internal_port = 8080
   processes = ["app"]
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
   protocol = "tcp"

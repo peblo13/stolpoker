@@ -1,28 +1,21 @@
-app = "stolpoker"
+# fly.toml app configuration file generated for stolpoker-xw46qq on 2025-11-23T22:03:29Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
 
-# Build using the backend Dockerfile (build context is repo root)
-[build]
-  dockerfile = "backend/Dockerfile"
-  context = "."
+app = 'stolpoker-xw46qq'
+primary_region = 'iad'
 
-[env]
-  PORT = "8080"
-  BIND_ADDR = "0.0.0.0"
-
-[processes]
-  # Match Dockerfile which already creates an executable /run.sh
-  app = "/run.sh"
-
-[[services]]
-  # Health check configuration - confirm your app exposes /health
-  http_checks = [{ path = "/health", interval = 10000, timeout = 2000, grace_period = 20000, method = "GET" }]
+[http_service]
   internal_port = 8080
-  processes = ["app"]
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
 
-  [[services.ports]]
-    port = 80
-    handlers = ["http"]
-  [[services.ports]]
-    port = 443
-    handlers = ["tls", "http"]
-  protocol = "tcp"
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
+  memory_mb = 1024

@@ -1,4 +1,4 @@
-FROM node:18.20.2-alpine3.20 AS base
+FROM node:18-alpine AS base
 
 # Minimal, consistent backend Dockerfile - consistent with `temp-poker/backend/Dockerfile`
 WORKDIR /app/backend
@@ -7,7 +7,10 @@ ARG PORT=8080
 ENV PORT=${PORT}
 
 COPY package*.json ./
-RUN npm ci --only=production --silent
+# Some production dependencies may need compilation; install build tools temporarily
+RUN apk add --no-cache --virtual .build-deps build-base python3 && \
+	npm ci --only=production --silent && \
+	apk del .build-deps
 
 # Copy the rest of the backend sources from the build context (backend/ directory)
 COPY . ./

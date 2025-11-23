@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import './App.css';
+
 const VITE_SOCKET_URL = (import.meta as any).env?.VITE_SOCKET_URL || (window.location.hostname === 'peblo13.github.io' ? 'https://stolpoker.fly.dev' : 'http://localhost:8080');
+
 interface Player {
   id: string;
   name: string;
@@ -42,9 +44,11 @@ function App() {
   const tableRef = useRef<HTMLDivElement | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [currentBet, setCurrentBet] = useState(0);
-  const [selectedPosition, setSelectedPosition] = useState<number | null>(null);
-  const nameInputRef = useRef<HTMLInputElement | null>(null);
+  const [selectedPosition, setSelectedPosition] = useState(0);
   const [isJoined, setIsJoined] = useState(false);
+  const [myId, setMyId] = useState<string | null>(null);
+  const [turnTimeLeft, setTurnTimeLeft] = useState<number>(0);
+  const [turnPlayerId, setTurnPlayerId] = useState<string | null>(null);
 
   useEffect(() => {
     const newSocket = io(VITE_SOCKET_URL);
@@ -64,12 +68,22 @@ function App() {
       setGameState(state);
     });
 
-    newSocket.on('joined', () => {
+    // on join, server returns player object with id
+    newSocket.on('joined', (player: any) => {
+      // store our assigned id
+      if (player && player.id) {
+        setMyId(player.id);
+      }
       setIsJoined(true);
     });
 
     newSocket.on('error', (msg: string) => {
       alert(msg);
+    });
+
+    newSocket.on('turnTimer', (payload: { playerId: string, timeLeft: number }) => {
+      setTurnPlayerId(payload.playerId);
+      setTurnTimeLeft(payload.timeLeft);
     });
 
     return () => {
@@ -79,15 +93,8 @@ function App() {
 
   const joinGame = () => {
     if (socket && playerName.trim() && playerName.length >= 2) {
-      socket.emit('joinGame', { name: playerName.trim(), position: selectedPosition !== null ? selectedPosition : undefined });
+      socket.emit('joinGame', { name: playerName.trim(), position: selectedPosition });
     }
-  };
-
-  const handleSeatClick = (pos: number) => {
-    const taken = gameState.players.some(p => p.position === pos);
-    if (taken) return;
-    setSelectedPosition(pos);
-    if (nameInputRef.current) nameInputRef.current.focus();
   };
 
   const fold = () => {
@@ -107,6 +114,9 @@ function App() {
       socket.emit('raise', { amount: currentBet });
     }
   };
+
+  const myPlayer = myId ? gameState.players.find(p => p.id === myId) : undefined;
+  const isMyTurn = !!myPlayer && myPlayer.position === gameState.currentPlayer;
 
   const renderPlayerSeats = () => {
     const seats = [];
@@ -130,7 +140,6 @@ function App() {
             left: '50%',
             transform: `translate(-50%, -50%) translate(${x}px, ${y}px)`,
           }}
-          onClick={() => handleSeatClick(i)}
         >
           {player ? (
             <>
@@ -144,9 +153,12 @@ function App() {
                 </div>
               )}
               {player.isActive && <div className="glow"></div>}
+              {turnPlayerId === player?.id && (
+                <div className="seat-timer">{turnTimeLeft}s</div>
+              )}
             </>
           ) : (
-            <div className={`player-name empty-seat`}>Empty Seat</div>
+            <div className="player-name empty-seat">Empty Seat</div>
           )}
         </div>
       );
@@ -177,7 +189,7 @@ function App() {
             placeholder="Player Name"
           />
           <select
-            value={selectedPosition ?? 0}
+            value={selectedPosition}
             onChange={(e) => setSelectedPosition(Number(e.target.value))}
           >
             {Array.from({ length: 10 }, (_, i) => (
@@ -210,8 +222,8 @@ function App() {
         <div>Phase: {gameState.phase}</div>
       </div>
       <div className="controls">
-        <button className="btn" onClick={fold}>Fold</button>
-        <button className="btn" onClick={call}>Call</button>
+        <button className="btn" onClick={fold} disabled={!isMyTurn}>Fold</button>
+        <button className="btn" onClick={call} disabled={!isMyTurn}>Call</button>
         <input
           type="number"
           value={currentBet}
@@ -219,7 +231,7 @@ function App() {
           placeholder="Bet Amount"
           style={{ width: '80px', marginRight: '10px' }}
         />
-        <button className="btn" onClick={raise}>Raise</button>
+        <button className="btn" onClick={raise} disabled={!isMyTurn}>Raise</button>
       </div>
     </div>
   );

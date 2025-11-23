@@ -1,4 +1,5 @@
-FROM node:18-alpine
+FROM node:18-alpine AS base
+RUN apk update && apk upgrade --no-cache
 
 # Single-stage image built from repo root with app files at /app/backend
 WORKDIR /app/backend

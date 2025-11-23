@@ -1,0 +1,40 @@
+name: Backend Security CI
+on:
+  push:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/**'
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Audit dependencies (fail on high/critical)
+        working-directory: backend
+        run: npm audit --audit-level=high
+
+      - name: Build Docker image (no push)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: backend/Dockerfile
+          push: false
+          tags: stolpoker-backend:ci
+
+      # Optional: add a Docker image scan using `docker/scan-action` or `aquasecurity/trivy-action` here
+      # - name: Scan Docker image
+      #   uses: docker/scan-action@v0.20.0
+      #   with:
+      #     image: stolpoker-backend:ci

@@ -33,7 +33,9 @@ jobs:
           push: false
           tags: stolpoker-backend:ci
 
-      # Optional: add a Docker image scan using `docker/scan-action` or `aquasecurity/trivy-action` here
+      - name: Scan Docker image with Trivy (inside container)
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image --severity CRITICAL,HIGH stolpoker-backend:ci || true
       # - name: Scan Docker image
       #   uses: docker/scan-action@v0.20.0
       #   with:

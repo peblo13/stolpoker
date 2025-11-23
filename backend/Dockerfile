@@ -1,23 +1,26 @@
 FROM node:18-alpine
 
-# Use single-stage build so artifacts are present in final image
+# Single-stage image built from repo root with app files at /app/backend
 WORKDIR /app/backend
 
-# Install only what we need; keep image small
+# Copy package.json and install runtime deps
 COPY backend/package*.json ./
 RUN npm install --only=production --silent
 
-# Copy backend source
+# Copy backend code to the container
 COPY backend/ ./
 
-# Create a small run wrapper to ensure the process is launched consistently
+# Create a root index proxy so Fly's default 'node /app/index.js' doesn't fail
+RUN mkdir -p /app && printf "module.exports = require('./backend/index.js');\n" > /app/index.js
+
+# Small bootstrap wrapper used by the runtime environment
 RUN printf '#!/bin/sh\nexec node /app/backend/index.js "$@"\n' > /run.sh \
   && chmod +x /run.sh
 
-# Default port used by Fly
+# Set port and expose for reference
 ARG PORT=8080
 ENV PORT=${PORT}
 EXPOSE ${PORT}
 
-# Launch via wrapper so platform can append args if needed
+# Entry point launches the server via the wrapper
 ENTRYPOINT ["/run.sh"]

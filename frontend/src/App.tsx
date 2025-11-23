@@ -1,9 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import './App.css';
-
 const VITE_SOCKET_URL = (import.meta as any).env?.VITE_SOCKET_URL || (window.location.hostname === 'peblo13.github.io' ? 'https://stolpoker.fly.dev' : 'http://localhost:8080');
-
 interface Player {
   id: string;
   name: string;
@@ -44,7 +42,8 @@ function App() {
   const tableRef = useRef<HTMLDivElement | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [currentBet, setCurrentBet] = useState(0);
-  const [selectedPosition, setSelectedPosition] = useState(0);
+  const [selectedPosition, setSelectedPosition] = useState<number | null>(null);
+  const nameInputRef = useRef<HTMLInputElement | null>(null);
   const [isJoined, setIsJoined] = useState(false);
 
   useEffect(() => {
@@ -80,8 +79,15 @@ function App() {
 
   const joinGame = () => {
     if (socket && playerName.trim() && playerName.length >= 2) {
-      socket.emit('joinGame', { name: playerName.trim(), position: selectedPosition });
+      socket.emit('joinGame', { name: playerName.trim(), position: selectedPosition !== null ? selectedPosition : undefined });
     }
+  };
+
+  const handleSeatClick = (pos: number) => {
+    const taken = gameState.players.some(p => p.position === pos);
+    if (taken) return;
+    setSelectedPosition(pos);
+    if (nameInputRef.current) nameInputRef.current.focus();
   };
 
   const fold = () => {
@@ -124,6 +130,7 @@ function App() {
             left: '50%',
             transform: `translate(-50%, -50%) translate(${x}px, ${y}px)`,
           }}
+          onClick={() => handleSeatClick(i)}
         >
           {player ? (
             <>
@@ -139,7 +146,7 @@ function App() {
               {player.isActive && <div className="glow"></div>}
             </>
           ) : (
-            <div className="player-name empty-seat">Empty Seat</div>
+            <div className={`player-name empty-seat`}>Empty Seat</div>
           )}
         </div>
       );
@@ -170,7 +177,7 @@ function App() {
             placeholder="Player Name"
           />
           <select
-            value={selectedPosition}
+            value={selectedPosition ?? 0}
             onChange={(e) => setSelectedPosition(Number(e.target.value))}
           >
             {Array.from({ length: 10 }, (_, i) => (

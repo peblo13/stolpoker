@@ -99,11 +99,11 @@ function startNewHand() {
   gameState.currentBet = 0;
   gameState.dealerPosition = (gameState.dealerPosition + 1) % players.length;
   gameState.currentPlayer = (gameState.dealerPosition + 1) % players.length; // start from small blind by default
-    console.log(`Starting new hand: dealer=${gameState.dealerPosition}, smallBlind=${smallBlindPos}, bigBlind=${bigBlindPos}`);
 
   // Assign blinds
   const smallBlindPos = (gameState.dealerPosition + 1) % players.length;
   const bigBlindPos = (gameState.dealerPosition + 2) % players.length;
+  console.log(`Starting new hand: dealer=${gameState.dealerPosition}, smallBlind=${smallBlindPos}, bigBlind=${bigBlindPos}`);
 
   players.forEach((player, index) => {
     player.isDealer = index === gameState.dealerPosition;
@@ -405,6 +405,8 @@ function awardPotToWinners(winners) {
   gameState.pot = 0;
   players.forEach(p => p.bet = 0);
   gameState.gameStarted = false;
+  if (currentTurnInterval) { clearInterval(currentTurnInterval); currentTurnInterval = null; }
+  if (currentTurnTimeout) { clearTimeout(currentTurnTimeout); currentTurnTimeout = null; }
   setTimeout(startNewHand, 2000);
   broadcastGameState();
 }

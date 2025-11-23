@@ -3,7 +3,7 @@ app = "stolpoker"
 # Build using the backend Dockerfile (build context is repo root)
 [build]
   dockerfile = "backend/Dockerfile"
-  context = "./backend"
+  context = "."
 
 [env]
   PORT = "8080"

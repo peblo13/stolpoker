@@ -6,7 +6,7 @@ ENV NODE_ENV=production
 ARG PORT=8080
 ENV PORT=${PORT}
 
-COPY package*.json ./
+COPY backend/package*.json ./
 # Some production dependencies may need compilation; install build tools temporarily
 RUN apk add --no-cache --virtual .build-deps build-base python3 && \
 	ls -la && cat package.json || true && \
@@ -14,7 +14,7 @@ RUN apk add --no-cache --virtual .build-deps build-base python3 && \
 	apk del .build-deps
 
 # Copy the rest of the backend sources from the build context (backend/ directory)
-COPY . ./
+COPY backend/ ./
 
 # Perform system updates, add curl for healthcheck, create run wrapper and non-root user
 USER root

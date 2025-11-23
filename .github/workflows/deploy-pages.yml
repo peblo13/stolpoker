@@ -38,3 +38,5 @@ jobs:
           git add docs/
           git commit -m "Deploy frontend to docs" || echo "No changes to commit"
           git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

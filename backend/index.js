@@ -145,13 +145,19 @@ io.on('connection', (socket) => {
       return;
     }
 
+    const position = data.position !== undefined ? data.position : players.length;
+    if (players.some(p => p.position === position)) {
+      socket.emit('error', 'Position already taken');
+      return;
+    }
+
     const player = {
       id: socket.id,
       socketId: socket.id,
       name: data.name || `Player ${players.length + 1}`,
       chips: 1000,
       cards: [],
-      position: players.length,
+      position: position,
       isActive: true,
       isDealer: false,
       isSmallBlind: false,

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import './App.css';
 
@@ -41,8 +41,11 @@ function App() {
     bigBlind: 20,
   });
   const [playerName, setPlayerName] = useState('');
+  const tableRef = useRef<HTMLDivElement | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [currentBet, setCurrentBet] = useState(0);
+  const [selectedPosition, setSelectedPosition] = useState(0);
+  const [isJoined, setIsJoined] = useState(false);
 
   useEffect(() => {
     const newSocket = io(VITE_SOCKET_URL);
@@ -62,14 +65,22 @@ function App() {
       setGameState(state);
     });
 
+    newSocket.on('joined', () => {
+      setIsJoined(true);
+    });
+
+    newSocket.on('error', (msg: string) => {
+      alert(msg);
+    });
+
     return () => {
       newSocket.close();
     };
   }, []);
 
   const joinGame = () => {
-    if (socket && playerName) {
-      socket.emit('joinGame', { name: playerName });
+    if (socket && playerName.trim() && playerName.length >= 2) {
+      socket.emit('joinGame', { name: playerName.trim(), position: selectedPosition });
     }
   };
 
@@ -93,11 +104,14 @@ function App() {
 
   const renderPlayerSeats = () => {
     const seats = [];
+    const container = tableRef.current;
+    const containerSize = container ? Math.min(container.offsetWidth, container.offsetHeight) : 800;
+    const seatOffset = 80; // space from edge for seat
+    const radius = Math.max(100, Math.floor(containerSize / 2 - seatOffset));
     for (let i = 0; i < 10; i++) {
       const player = gameState.players.find(p => p.position === i);
-      const angle = (i * 36) - 90; // 36 degrees apart, starting from top
+      const angle = (i * 36) - 90 + 18; // 36 degrees apart, starting from top-left-ish
       const radian = (angle * Math.PI) / 180;
-      const radius = 250;
       const x = Math.cos(radian) * radius;
       const y = Math.sin(radian) * radius;
 
@@ -106,7 +120,9 @@ function App() {
           key={i}
           className="player-seat"
           style={{
-            transform: `translate(${x}px, ${y}px) rotate(${angle + 90}deg)`,
+            top: '50%',
+            left: '50%',
+            transform: `translate(-50%, -50%) translate(${x}px, ${y}px)`,
           }}
         >
           {player ? (
@@ -123,7 +139,7 @@ function App() {
               {player.isActive && <div className="glow"></div>}
             </>
           ) : (
-            <div className="player-name">Empty</div>
+            <div className="player-name empty-seat">Empty Seat</div>
           )}
         </div>
       );
@@ -133,7 +149,7 @@ function App() {
 
   if (!isConnected) {
     return (
-      <div className="poker-table">
+      <div className="poker-table" ref={tableRef}>
         <div className="table-center">
           <h1>Connecting to Poker Server...</h1>
         </div>
@@ -141,26 +157,36 @@ function App() {
     );
   }
 
-  if (!playerName) {
+  if (!isJoined) {
     return (
-      <div className="poker-table">
+      <div className="poker-table" ref={tableRef}>
         <div className="table-center">
           <h1>Enter Your Name</h1>
           <input
             type="text"
             value={playerName}
             onChange={(e) => setPlayerName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && joinGame()}
             placeholder="Player Name"
-            style={{ margin: '10px', padding: '5px' }}
           />
-          <button className="btn" onClick={joinGame}>Join Game</button>
+          <select
+            value={selectedPosition}
+            onChange={(e) => setSelectedPosition(Number(e.target.value))}
+          >
+            {Array.from({ length: 10 }, (_, i) => (
+              <option key={i} value={i} disabled={gameState.players.some(p => p.position === i)}>
+                Position {i + 1} {gameState.players.some(p => p.position === i) ? '(Taken)' : ''}
+              </option>
+            ))}
+          </select>
+          <button className="btn" onClick={joinGame} disabled={!playerName.trim() || playerName.length < 2}>Join Game</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="poker-table">
+    <div className="poker-table" ref={tableRef}>
       <div className="logo">
         <img src="/hazardzik.png" alt="Hazardzik Logo" />
       </div>

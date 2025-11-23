@@ -1,23 +1,16 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Stół Poker - Demo</title>
-    <style>
-      body { font-family: Arial, Helvetica, sans-serif; padding: 2rem; }
-      #status { font-weight: bold; margin-bottom: 1rem; }
-      #log { white-space: pre-wrap; background: #f2f2f2; padding: 1rem; border-radius: 6px; }
-      button { margin-right: .5rem; }
-    </style>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Futuristic Poker Table</title>
   </head>
   <body>
-    <h1>Stół Poker - Frontend Demo</h1>
-    <div id="status">Łączenie...</div>
-    <div>
-      <button id="ping">Wyślij ping</button>
-      <button id="reload">Odśwież połączenie</button>
-    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
     <h3>Log</h3>
     <div id="log">—</div>
 

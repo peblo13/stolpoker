@@ -9,6 +9,7 @@ ENV PORT=${PORT}
 COPY package*.json ./
 # Some production dependencies may need compilation; install build tools temporarily
 RUN apk add --no-cache --virtual .build-deps build-base python3 && \
+	ls -la && cat package.json || true && \
 	npm ci --only=production --no-audit --unsafe-perm && \
 	apk del .build-deps
 

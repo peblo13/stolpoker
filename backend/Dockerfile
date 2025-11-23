@@ -7,7 +7,7 @@ ARG PORT=8080
 ENV PORT=${PORT}
 
 COPY backend/package*.json ./
-RUN npm install --only=production --silent
+RUN npm ci --only=production --silent
 
 COPY backend/ ./
 

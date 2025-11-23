@@ -139,6 +139,19 @@ body {
   animation: glow 2s ease-in-out infinite alternate;
 }
 
+.logo {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.logo img {
+  height: 60px;
+  filter: drop-shadow(0 0 10px #00ff88);
+}
+
 @keyframes glow {
   from {
     box-shadow: 0 0 20px #00ff88;

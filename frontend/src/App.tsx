@@ -28,6 +28,7 @@ interface GameState {
 }
 
 function App() {
+  console.log('App rendering');
   const [socket, setSocket] = useState<Socket | null>(null);
   const [gameState, setGameState] = useState<GameState>({
     players: [],
@@ -160,6 +161,9 @@ function App() {
 
   return (
     <div className="poker-table">
+      <div className="logo">
+        <img src="/hazardzik.png" alt="Hazardzik Logo" />
+      </div>
       <div className="player-seats">
         {renderPlayerSeats()}
       </div>

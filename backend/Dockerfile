@@ -1,27 +1,22 @@
-FROM node:18-alpine AS base
-RUN apk update && apk upgrade --no-cache
+FROM node:18.20.2-alpine3.20 AS base
 
-# Single-stage image built from repo root with app files at /app/backend
+# Minimal, consistent backend Dockerfile - consistent with `temp-poker/backend/Dockerfile`
 WORKDIR /app/backend
+ENV NODE_ENV=production
+ARG PORT=8080
+ENV PORT=${PORT}
 
-# Copy package.json and install runtime deps
 COPY backend/package*.json ./
 RUN npm install --only=production --silent
 
-# Copy backend code to the container
 COPY backend/ ./
 
-# Create a root index proxy so Fly's default 'node /app/index.js' doesn't fail
-RUN mkdir -p /app && printf "module.exports = require('./backend/index.js');\n" > /app/index.js
+# Perform system updates, add curl for healthcheck, create run wrapper and non-root user
+USER root
+RUN apk update && apk upgrade --no-cache && apk add --no-cache curl
+RUN printf '#!/bin/sh\nexec node /app/backend/index.js "$@"\n' > /run.sh && chmod +x /run.sh
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup && chown -R appuser:appgroup /app
 
-# Small bootstrap wrapper used by the runtime environment
-RUN printf '#!/bin/sh\nexec node /app/backend/index.js "$@"\n' > /run.sh \
-  && chmod +x /run.sh
-
-# Set port and expose for reference
-ARG PORT=8080
-ENV PORT=${PORT}
+USER appuser
 EXPOSE ${PORT}
-
-# Entry point launches the server via the wrapper
 ENTRYPOINT ["/run.sh"]
